@@ -1,0 +1,28 @@
+# ---- ESP-IDF build output ----
+firmware/**/build/
+firmware/**/artifacts/
+firmware/**/sdkconfig
+firmware/**/sdkconfig.old
+firmware/**/sdkconfig.*.bak
+*.bin
+*.elf
+*.map
+*.events.csv
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+
+# ---- OS / editor ----
+Thumbs.db
+Desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# ---- 生成的判定报告（本地按需生成） ----
+docs/T0-GoNoGo-报告.md
+
+# ---- 本地私有资料（不入库） ----
+_prd.txt
+*.docx
