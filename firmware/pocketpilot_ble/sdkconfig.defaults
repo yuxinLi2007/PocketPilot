@@ -1,0 +1,30 @@
+CONFIG_BT_ENABLED=y
+CONFIG_BT_BLUEDROID_ENABLED=y
+CONFIG_BT_BLE_ENABLED=y
+CONFIG_BT_BLE_42_FEATURES_SUPPORTED=y
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+
+# ESP-SR: models live in a dedicated "model" data partition, so the default
+# single-app table no longer fits.
+CONFIG_PARTITION_TABLE_CUSTOM=y
+CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"
+
+# ESP32-S3-EYE carries 8 MB octal PSRAM; ESP-SR needs it for model weights.
+CONFIG_SPIRAM=y
+CONFIG_SPIRAM_MODE_OCT=y
+CONFIG_SPIRAM_SPEED_80M=y
+CONFIG_SPIRAM_USE_MALLOC=y
+CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=4096
+CONFIG_SPIRAM_MALLOC_RESERVE_INTERNAL=32768
+CONFIG_ESP32S3_DATA_CACHE_64KB=y
+
+# Chinese command words (MultiNet7, quantised). WakeNet is off on purpose:
+# recognition is push-to-talk, triggered by a physical key.
+CONFIG_MODEL_IN_FLASH=y
+CONFIG_SR_MN_CN_MULTINET7_QUANT=y
+CONFIG_SR_MN_EN_NONE=y
+
+# ESP32-S3-EYE native USB port: make USB-Serial/JTAG the primary console
+# so both logs and stdin (single-key test commands) use the same COM port.
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+CONFIG_ESP_CONSOLE_SECONDARY_NONE=y

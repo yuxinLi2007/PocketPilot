@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 仅 debug 构建存在：用于 adb 注入模拟 BLE 帧，便于自动化验证 -->
+    <application>
+        <receiver
+            android:name=".debug.DebugInjectReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.pocketpilot.app.DEBUG_INJECT" />
+                <action android:name="com.pocketpilot.app.DEBUG_CONFIG" />
+                <action android:name="com.pocketpilot.app.DEBUG_TASK" />
+            </intent-filter>
+        </receiver>
+    </application>
+</manifest>

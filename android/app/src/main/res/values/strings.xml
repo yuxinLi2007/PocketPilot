@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PocketPilot</string>
+    <string name="accessibility_label">PocketPilot 返回键服务</string>
+    <string name="accessibility_description">仅用于执行“返回上一页”命令。启用后，PocketPilot 可以通过系统无障碍接口触发返回动作，并记录动作前后的前台应用以便核对结果。</string>
+</resources>

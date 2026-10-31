@@ -26,3 +26,21 @@ docs/T0-GoNoGo-报告.md
 # ---- 本地私有资料（不入库） ----
 _prd.txt
 *.docx
+# ---- Android build output ----
+android/.gradle/
+android/**/build/
+android/local.properties
+android/.idea/
+android/captures/
+*.apk
+*.aab
+
+# ---- ESP-IDF local cache ----
+firmware/**/.cache/
+
+# ---- 本地回归控制台抓取（内容与 android/docs/emulator-regression-latest.txt 重复） ----
+android/tools/emulator-test/last-run-console.txt
+
+# ---- 原始模拟器控制台日志（临时输出，验收记录见 emulator-regression-latest.txt） ----
+android/docs/emulator-console.log
+android/docs/emulator-error.log

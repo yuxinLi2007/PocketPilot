@@ -1,0 +1,32 @@
+PASS  service uuid matches firmware LE bytes
+PASS  rx uuid matches firmware LE bytes
+PASS  tx uuid matches firmware LE bytes
+PASS  protocol UUIDs are distinct
+PASS  decode wechat
+PASS  decode map
+PASS  decode back
+PASS  decode no trailing newline
+PASS  reject garbage (MALFORMED_FRAME)
+PASS  reject empty (EMPTY_FRAME)
+PASS  reject version (UNSUPPORTED_VERSION)
+PASS  reject unknown command (UNKNOWN_COMMAND)
+PASS  reject oversize (FRAME_TOO_LONG)
+PASS  encode map produces PP1 frame
+PASS  assembler reassembles split CJK frames
+PASS  assembler rejects overflow
+PASS  wechat accepted
+PASS  map missing argument
+PASS  map argument too long
+PASS  back without accessibility
+PASS  back with accessibility
+PASS  duplicate inside 300 ms
+PASS  same command after 300 ms
+PASS  no previous timestamp for this type
+PASS  status frame format
+PASS  status frame sanitizes '|' and newlines
+PASS  status frame fills exactly 512 bytes without ellipsis
+PASS  status frame truncates one-byte overflow with ellipsis
+PASS  status frame truncates CJK/emoji at char boundary (512 bytes)
+
+PASS 29  FAIL 0
+PROTOCOL_SELFTEST_OK
