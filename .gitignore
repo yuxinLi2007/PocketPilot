@@ -44,3 +44,8 @@ android/tools/emulator-test/last-run-console.txt
 # ---- 原始模拟器控制台日志（临时输出，验收记录见 emulator-regression-latest.txt） ----
 android/docs/emulator-console.log
 android/docs/emulator-error.log
+
+# ---- 带日期的原始模拟器控制台日志（验收记录见 emulator-regression-latest.txt） ----
+android/docs/emulator-console-*.log
+android/docs/emulator-error-*.log
+

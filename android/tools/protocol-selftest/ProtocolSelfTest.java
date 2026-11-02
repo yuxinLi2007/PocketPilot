@@ -5,6 +5,7 @@ import com.pocketpilot.app.core.CommandResult;
 import com.pocketpilot.app.core.CommandType;
 import com.pocketpilot.app.core.CommandValidator;
 import com.pocketpilot.app.core.ExecutionStatus;
+import com.pocketpilot.app.core.GattWriteChunker;
 import com.pocketpilot.app.core.PocketCommand;
 import com.pocketpilot.app.core.PocketProtocol;
 import com.pocketpilot.app.core.StatusFrameEncoder;
@@ -36,6 +37,7 @@ public final class ProtocolSelfTest {
         validatorTests();
         taskValidatorTests();
         statusFrameTests();
+        gattWriteChunkerTests();
 
         System.out.println();
         System.out.println("PASS " + passed + "  FAIL " + FAILURES.size());
@@ -512,6 +514,83 @@ public final class ProtocolSelfTest {
         }
     }
 
+    // ------------------------------------------------------ GATT write chunker
+
+    private static void gattWriteChunkerTests() {
+        expectInt("chunker MTU 23 -> 20-byte payload", 20,
+                GattWriteChunker.payloadBytesForMtu(23));
+        expectInt("chunker MTU 185 -> 182-byte payload", 182,
+                GattWriteChunker.payloadBytesForMtu(185));
+        expectInt("chunker MTU 517 clamps to 512", 512,
+                GattWriteChunker.payloadBytesForMtu(517));
+        expectInt("chunker MTU 0 falls back to 20", 20,
+                GattWriteChunker.payloadBytesForMtu(0));
+
+        PocketCommand cmd = PocketCommand.create(CommandType.OPEN_MAP, "addr", "selftest");
+        String longDetail = repeat("地址🌏", 300);
+        byte[] frame = utf8(StatusFrameEncoder.encode(new CommandResult(
+                cmd, ExecutionStatus.CONFIRMED, longDetail, "selftest", 1L, 1L)));
+        boolean frameOk = frame.length <= CommandCodec.MAX_FRAME_BYTES
+                && frame[frame.length - 1] == '\n';
+        if (frameOk) {
+            pass("long RESULT frame is <=512 bytes and newline-terminated ("
+                    + frame.length + " bytes)");
+        } else {
+            fail("long RESULT frame invalid: bytes=" + frame.length);
+        }
+
+        List<byte[]> chunks = GattWriteChunker.split(frame, 20);
+        boolean sizesOk = chunks.size() == GattWriteChunker.chunkCount(frame.length, 20);
+        for (byte[] chunk : chunks) {
+            sizesOk &= chunk.length > 0 && chunk.length <= 20;
+        }
+        byte[] reassembled = concat(chunks);
+        if (sizesOk && java.util.Arrays.equals(frame, reassembled)) {
+            pass("chunker splits long RESULT into " + chunks.size()
+                    + " ordered chunks and reassembles byte-identically");
+        } else {
+            fail("chunker round trip failed: chunks=" + chunks.size()
+                    + " sizesOk=" + sizesOk + " equal="
+                    + java.util.Arrays.equals(frame, reassembled));
+        }
+
+        String chinese = "PP1|RESULT|task-中文|CONFIRMED|北京市海淀区中关村大街1号\n";
+        byte[] chineseBytes = utf8(chinese);
+        List<byte[]> chineseChunks = GattWriteChunker.split(chineseBytes, 3);
+        byte[] chineseBack = concat(chineseChunks);
+        if (java.util.Arrays.equals(chineseBytes, chineseBack)
+                && chinese.equals(new String(chineseBack, StandardCharsets.UTF_8))) {
+            pass("chunker preserves UTF-8 when a chunk boundary splits a CJK character");
+        } else {
+            fail("chunker corrupted UTF-8 across chunk boundary");
+        }
+
+        if (GattWriteChunker.split(new byte[40], 20).size() == 2) {
+            pass("chunker does not emit an extra empty chunk at an exact multiple");
+        } else {
+            fail("chunker emitted wrong chunk count for 40/20");
+        }
+
+        if (GattWriteChunker.split(new byte[0], 20).isEmpty()
+                && GattWriteChunker.chunkCount(0, 20) == 0) {
+            pass("chunker handles empty frame as zero chunks");
+        } else {
+            fail("chunker empty frame handling failed");
+        }
+
+        boolean threw = false;
+        try {
+            GattWriteChunker.split(new byte[]{1}, 0);
+        } catch (IllegalArgumentException expected) {
+            threw = true;
+        }
+        if (threw) {
+            pass("chunker rejects non-positive payload size");
+        } else {
+            fail("chunker accepted payload size 0");
+        }
+    }
+
     // ------------------------------------------ task text framing / assembly
 
     private static void taskAssemblerTests() {
@@ -721,6 +800,28 @@ public final class ProtocolSelfTest {
             }
         }
         return n;
+    }
+
+    private static void expectInt(String name, int expected, int actual) {
+        if (expected == actual) {
+            pass(name);
+        } else {
+            fail(name + " (expected " + expected + ", got " + actual + ")");
+        }
+    }
+
+    private static byte[] concat(List<byte[]> chunks) {
+        int total = 0;
+        for (byte[] chunk : chunks) {
+            total += chunk.length;
+        }
+        byte[] out = new byte[total];
+        int offset = 0;
+        for (byte[] chunk : chunks) {
+            System.arraycopy(chunk, 0, out, offset, chunk.length);
+            offset += chunk.length;
+        }
+        return out;
     }
 
     private static String repeat(String unit, int times) {

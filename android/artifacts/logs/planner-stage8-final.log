@@ -1,0 +1,100 @@
+compiling 19 source files with D:\Android\jdk17\bin\javac.exe
+PASS  whitelist covers the three shipped commands
+PASS  null action is not allowed
+PASS  whitelist has exactly 3 entries (got 3)
+PASS  no whitelisted action is currently sensitive/irreversible
+PASS  address->map utterance yields READY
+PASS  address->map plan has exactly 1 step
+PASS  step type is OPEN_MAP
+PASS  step argument equals the context address verbatim (got '北京市海淀区中关村大街1号')
+PASS  OPEN_MAP step does not require confirmation
+PASS  planner id is recorded on the plan
+PASS  missing address yields UNAVAILABLE
+PASS  missing address reason is NO_ADDRESS_IN_CONTEXT (got NO_ADDRESS_IN_CONTEXT)
+PASS  missing address produces no plan at all
+PASS  send-message utterance is not planned
+PASS  send-message reason is UNSUPPORTED_ACTION (got UNSUPPORTED_ACTION)
+PASS  back utterance yields a single BACK step
+PASS  open-wechat utterance yields a single OPEN_WECHAT step
+PASS  unrelated utterance is UNAVAILABLE
+PASS  unrelated utterance reason is NO_RULE_MATCHED (got NO_RULE_MATCHED)
+PASS  unrelated utterance produces no plan
+PASS  blank utterance yields EMPTY_UTTERANCE
+PASS  punctuation/whitespace does not break matching
+PASS  RulePlanner never emits an action outside the whitelist
+PASS  unconfigured cloud stub is UNAVAILABLE
+PASS  unconfigured cloud stub reason is NO_API_KEY (got NO_API_KEY)
+PASS  unconfigured cloud stub returns no fabricated plan
+PASS  configured-but-unimplemented cloud stub is UNAVAILABLE(NOT_IMPLEMENTED)
+PASS  configured cloud stub still returns no plan
+PASS  cloud stub id is CLOUD_STUB_V1
+PASS  empty plan is rejected with EMPTY_PLAN
+PASS  null plan is rejected with EMPTY_PLAN
+PASS  sensitive step without confirmation -> NEEDS_CONFIRMATION/CONFIRMATION_REQUIRED
+PASS  sensitive step with confirmation is accepted
+PASS  null action type -> REJECTED(UNKNOWN_ACTION)
+PASS  121-char OPEN_MAP argument -> REJECTED(ARGUMENT_TOO_LONG)
+PASS  OPEN_MAP without argument -> REJECTED(MISSING_ARGUMENT)
+PASS  BACK with accessibility disabled -> REJECTED(PERMISSION_REQUIRED), got PERMISSION_REQUIRED
+PASS  BACK with accessibility enabled is accepted
+PASS  null ContextFacts is treated as accessibility disabled
+PASS  MAX_STEPS+1 steps -> REJECTED(PLAN_TOO_LONG)
+PASS  exactly MAX_STEPS steps is accepted
+PASS  all-confirmed run -> COMPLETED_CONFIRMED (got COMPLETED_CONFIRMED)
+PASS  all-confirmed run event is TASK_EXECUTED
+PASS  one plan step executed exactly once
+PASS  step outcome carries CONFIRMED and is not marked skipped
+PASS  unconfirmed execution -> COMPLETED_UNCONFIRMED (got COMPLETED_UNCONFIRMED)
+PASS  unconfirmed execution still reports TASK_EXECUTED (it did run)
+PASS  CONFIRMED + EXECUTED_UNCONFIRMED -> COMPLETED_UNCONFIRMED (got COMPLETED_UNCONFIRMED)
+PASS  failing first step -> FAILED (got FAILED)
+PASS  failing run event is TASK_FAILED
+PASS  executor was called only once (fail-fast, got 1)
+PASS  both steps are reported
+PASS  second step is marked SKIPPED without a status
+PASS  failed run reason is STEP_FAILED (got STEP_FAILED)
+PASS  no address in context -> BLOCKED (got BLOCKED)
+PASS  blocked run event is TASK_BLOCKED
+PASS  blocked run keeps the planner reason code (got NO_ADDRESS_IN_CONTEXT)
+PASS  blocked run executed nothing and reports zero steps
+PASS  cloud stub without API key -> BLOCKED(NO_API_KEY)
+PASS  cloud stub path executed nothing
+PASS  invalid plan -> BLOCKED(UNKNOWN_ACTION), got UNKNOWN_ACTION
+PASS  rejected plan executed nothing
+PASS  sensitive step without confirmation -> BLOCKED(CONFIRMATION_REQUIRED), got CONFIRMATION_REQUIRED
+PASS  sensitive step without confirmation executed nothing
+PASS  sensitive step with confirmation is executed once
+PASS  executor returning null -> BLOCKED(NO_STEP_RESULT), got NO_STEP_RESULT
+PASS  executor throwing -> BLOCKED(STEP_EXCEPTION), got STEP_EXCEPTION
+PASS  BACK without accessibility -> BLOCKED(PERMISSION_REQUIRED), got PERMISSION_REQUIRED
+PASS  BACK without accessibility executed nothing
+PASS  null planner -> BLOCKED instead of crashing
+PASS  toJson produces output
+PASS  toJson is a single line
+PASS  toJson is a JSON object
+PASS  json carries the event name
+PASS  json carries the planner id
+PASS  json carries a steps array
+PASS  json carries the executed address
+PASS  json carries the step status
+PASS  json records the address actually used by the step
+PASS  step outcome exposes the executed argument
+PASS  blocked json event is TASK_BLOCKED
+PASS  json records the MOCK address source
+PASS  task result flags itself as using a mock address
+PASS  json records NONE when no address was available
+PASS  task without address is not flagged as mock
+PASS  json records the REAL notification source when provided
+PASS  REAL_ source is not flagged as mock
+PASS  blocked json has an empty steps array
+PASS  blocked json never claims a CONFIRMED step
+PASS  escape removes raw newlines and tabs
+PASS  escape doubles quotes and backslashes
+PASS  escape(null) is empty string
+PASS  MOCK_ address source is flagged as mock
+PASS  REAL_ address source is not flagged as mock
+PASS  empty facts have no address and SOURCE_NONE
+PASS  facts trim the address and default a null source to NONE
+
+PASS 96  FAIL 0
+PLANNER_SELFTEST_OK

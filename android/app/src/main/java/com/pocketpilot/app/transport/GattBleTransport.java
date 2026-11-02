@@ -24,6 +24,7 @@ import android.os.ParcelUuid;
 import android.util.Log;
 
 import com.pocketpilot.app.core.CommandCodec;
+import com.pocketpilot.app.core.GattWriteChunker;
 import com.pocketpilot.app.core.PocketProtocol;
 
 import java.nio.charset.StandardCharsets;
@@ -92,6 +93,11 @@ public final class GattBleTransport implements BleTransport {
     private volatile boolean running;
     private volatile boolean ready;
     private boolean writeInFlight;
+    /** 当前正在分片写入的完整帧；null 表示没有帧在途。 */
+    private byte[] activeWriteFrame;
+    private int activeWriteOffset;
+    private int activeWriteChunkLength;
+    private int writePayloadBytes = GattWriteChunker.DEFAULT_PAYLOAD_BYTES;
     private boolean mtuRequested;
     private int reconnectAttempts;
 
@@ -114,6 +120,7 @@ public final class GattBleTransport implements BleTransport {
         this.listener = listener;
         this.running = true;
         this.ready = false;
+        this.writePayloadBytes = GattWriteChunker.DEFAULT_PAYLOAD_BYTES;
         if (!hasBlePermissions()) {
             fail("缺少蓝牙权限：Android 12+ 需要 BLUETOOTH_SCAN / BLUETOOTH_CONNECT");
             return;
@@ -247,6 +254,10 @@ public final class GattBleTransport implements BleTransport {
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 ready = false;
                 writeInFlight = false;
+                activeWriteFrame = null;
+                activeWriteOffset = 0;
+                activeWriteChunkLength = 0;
+                writePayloadBytes = GattWriteChunker.DEFAULT_PAYLOAD_BYTES;
                 synchronized (writeQueue) {
                     writeQueue.clear();
                 }
@@ -337,7 +348,9 @@ public final class GattBleTransport implements BleTransport {
         @Override
         public void onMtuChanged(BluetoothGatt g, int mtu, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                emit(TransportState.CONNECTED, "命令通知已订阅，MTU=" + mtu);
+                writePayloadBytes = GattWriteChunker.payloadBytesForMtu(mtu);
+                emit(TransportState.CONNECTED,
+                        "命令通知已订阅，MTU=" + mtu + "，单片写入=" + writePayloadBytes + " 字节");
             } else {
                 Log.w(TAG, "MTU 协商失败 status=" + status + "，继续使用默认 MTU");
             }
@@ -357,8 +370,19 @@ public final class GattBleTransport implements BleTransport {
                 writeInFlight = false;
                 if (status != BluetoothGatt.GATT_SUCCESS) {
                     writeQueue.clear();
+                    activeWriteFrame = null;
+                    activeWriteOffset = 0;
+                    activeWriteChunkLength = 0;
                     emit(TransportState.ERROR, "状态回传写入失败，status=" + status + "（队列已清空）");
                     return;
+                }
+                if (activeWriteFrame != null) {
+                    activeWriteOffset += activeWriteChunkLength;
+                    activeWriteChunkLength = 0;
+                    if (activeWriteOffset >= activeWriteFrame.length) {
+                        activeWriteFrame = null;
+                        activeWriteOffset = 0;
+                    }
                 }
             }
             drainWrites();
@@ -414,7 +438,11 @@ public final class GattBleTransport implements BleTransport {
         synchronized (writeQueue) {
             writeQueue.clear();
             writeInFlight = false;
+            activeWriteFrame = null;
+            activeWriteOffset = 0;
+            activeWriteChunkLength = 0;
         }
+        writePayloadBytes = GattWriteChunker.DEFAULT_PAYLOAD_BYTES;
         if (gatt != null) {
             try {
                 gatt.disconnect();
@@ -450,17 +478,33 @@ public final class GattBleTransport implements BleTransport {
     }
 
     private void drainWrites() {
-        byte[] next;
+        byte[] nextChunk;
         synchronized (writeQueue) {
-            if (!running || gatt == null || !ready || writeInFlight || writeQueue.isEmpty()) {
+            if (!running || gatt == null || !ready || writeInFlight) {
                 return;
             }
-            next = writeQueue.pollFirst();
+            if (activeWriteFrame == null) {
+                if (writeQueue.isEmpty()) {
+                    return;
+                }
+                activeWriteFrame = writeQueue.pollFirst();
+                activeWriteOffset = 0;
+            }
+            int remaining = activeWriteFrame.length - activeWriteOffset;
+            if (remaining <= 0) {
+                activeWriteFrame = null;
+                activeWriteOffset = 0;
+                return;
+            }
+            int length = Math.min(writePayloadBytes, remaining);
+            nextChunk = new byte[length];
+            System.arraycopy(activeWriteFrame, activeWriteOffset, nextChunk, 0, length);
+            activeWriteChunkLength = length;
             writeInFlight = true;
         }
         boolean queued;
         try {
-            queued = writeCharacteristic(gatt, txCharacteristic, next);
+            queued = writeCharacteristic(gatt, txCharacteristic, nextChunk);
         } catch (SecurityException e) {
             queued = false;
             Log.w(TAG, "write rejected: " + e.getMessage());
@@ -468,6 +512,9 @@ public final class GattBleTransport implements BleTransport {
         if (!queued) {
             synchronized (writeQueue) {
                 writeInFlight = false;
+                activeWriteFrame = null;
+                activeWriteOffset = 0;
+                activeWriteChunkLength = 0;
                 writeQueue.clear();
             }
             emit(TransportState.ERROR, "状态回传写入未被 BLE 栈接受（队列已清空）");

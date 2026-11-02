@@ -1,0 +1,89 @@
+PASS  service uuid matches firmware LE bytes
+PASS  rx uuid matches firmware LE bytes
+PASS  tx uuid matches firmware LE bytes
+PASS  protocol UUIDs are distinct
+PASS  decode wechat
+PASS  decode map
+PASS  decode back
+PASS  decode no trailing newline
+PASS  reject garbage (MALFORMED_FRAME)
+PASS  reject empty (EMPTY_FRAME)
+PASS  reject version (UNSUPPORTED_VERSION)
+PASS  reject unknown command (UNKNOWN_COMMAND)
+PASS  reject oversize (FRAME_TOO_LONG)
+PASS  encode map produces PP1 frame
+PASS  fixed command wire format unchanged: wechat
+PASS  fixed command wire format unchanged: map
+PASS  fixed command wire format unchanged: back
+PASS  fixed-command encoder rejects TASK_TEXT (must use encodeTaskText)
+PASS  task text english round-trip
+PASS  task text frame is newline-terminated within 512 bytes
+PASS  task text chinese declares UTF-8 byte length 33
+PASS  task text chinese round-trip
+PASS  task text keeps embedded '|' characters
+PASS  task text 384 ASCII bytes accepted (frame 428 bytes)
+PASS  task text 128 CJK chars = 384 UTF-8 bytes accepted
+PASS  encode rejects 385 ASCII bytes (TEXT_TOO_LONG)
+PASS  encode rejects empty text (EMPTY_TASK_TEXT)
+PASS  encode rejects whitespace-only text (EMPTY_TASK_TEXT)
+PASS  encode rejects text with line break (MALFORMED_FRAME)
+PASS  encode rejects message id with space (INVALID_MESSAGE_ID)
+PASS  encode rejects message id with 65 chars (INVALID_MESSAGE_ID)
+PASS  message id 64 ASCII chars accepted
+PASS  decode rejects empty text field (EMPTY_TASK_TEXT)
+PASS  decode rejects whitespace text field (EMPTY_TASK_TEXT)
+PASS  decode rejects non-numeric length (INVALID_LENGTH)
+PASS  decode rejects negative length (INVALID_LENGTH)
+PASS  decode rejects declared/actual mismatch (LENGTH_MISMATCH)
+PASS  decode rejects declared length above cap (TEXT_TOO_LONG)
+PASS  decode rejects truncated after length (MALFORMED_FRAME)
+PASS  decode rejects truncated before length (MALFORMED_FRAME)
+PASS  decode rejects missing message id (INVALID_MESSAGE_ID)
+PASS  decode rejects message id with slash (INVALID_MESSAGE_ID)
+PASS  decode rejects wrong version (UNSUPPORTED_VERSION)
+PASS  decode rejects text with embedded CR (MALFORMED_FRAME)
+PASS  decode rejects task frame over 512 bytes (FRAME_TOO_LONG)
+PASS  decode rejects String decode over 512 bytes (FRAME_TOO_LONG)
+PASS  decode rejects illegal UTF-8 bytes (INVALID_UTF8)
+PASS  assembler reassembles split CJK frames
+PASS  assembler rejects overflow
+PASS  assembler reassembles TASK_TEXT split across MTU and mid-CJK
+PASS  assembler accepts 511-byte payload + newline (512-byte frame)
+PASS  assembler rejects 512-byte payload + newline (would be 513)
+PASS  assembler timeout drops stale half frame and accepts next frame
+PASS  expireIfStale clears half frame and receiver recovers
+PASS  assembler emits duplicate complete frames for guard-level dedup
+PASS  out-of-order bytes do not form a valid TASK_TEXT (rejected, not recovered)
+PASS  message guard suppresses duplicate within TTL and accepts after expiry
+PASS  message guard rejects empty id
+PASS  message guard bounded capacity evicts oldest entry
+PASS  wechat accepted
+PASS  map missing argument
+PASS  map argument too long
+PASS  back without accessibility
+PASS  back with accessibility
+PASS  duplicate inside 300 ms
+PASS  same command after 300 ms
+PASS  no previous timestamp for this type
+PASS  TASK_TEXT accepted by validator
+PASS  TASK_TEXT blank rejected
+PASS  TASK_TEXT 385 bytes rejected
+PASS  TASK_TEXT invalid id rejected
+PASS  status frame format
+PASS  status frame sanitizes '|' and newlines
+PASS  status frame fills exactly 512 bytes without ellipsis
+PASS  status frame truncates one-byte overflow with ellipsis
+PASS  status frame truncates CJK/emoji at char boundary (512 bytes)
+PASS  chunker MTU 23 -> 20-byte payload
+PASS  chunker MTU 185 -> 182-byte payload
+PASS  chunker MTU 517 clamps to 512
+PASS  chunker MTU 0 falls back to 20
+PASS  long RESULT frame is <=512 bytes and newline-terminated (511 bytes)
+PASS  chunker splits long RESULT into 26 ordered chunks and reassembles byte-identically
+PASS  chunker preserves UTF-8 when a chunk boundary splits a CJK character
+PASS  chunker does not emit an extra empty chunk at an exact multiple
+PASS  chunker handles empty frame as zero chunks
+PASS  chunker rejects non-positive payload size
+
+PASS 86  FAIL 0
+PROTOCOL_SELFTEST_OK

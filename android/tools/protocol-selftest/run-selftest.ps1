@@ -21,7 +21,7 @@ $core = Join-Path $root 'app\src\main\java\com\pocketpilot\app\core'
 $sources = @(
     'CommandCodec.java', 'CommandType.java', 'CommandValidator.java',
     'CommandResult.java', 'ExecutionStatus.java', 'PocketCommand.java',
-    'StatusFrameEncoder.java', 
+    'StatusFrameEncoder.java', 'GattWriteChunker.java',
     'TaskTextProtocol.java', 'TaskMessageGuard.java', 
     'PocketProtocol.java'
 ) | ForEach-Object { Join-Path $core $_ }

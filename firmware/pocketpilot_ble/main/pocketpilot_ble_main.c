@@ -52,13 +52,13 @@
 #include "pp_button.h"
 #include "pp_asr.h"
 #include "pp_audio.h"
+#include "pp_rx_assembler.h"
 
 #define TAG "PocketPilotBLE"
 
 #define DEVICE_NAME        "PocketPilot"
 #define PROFILE_APP_ID     0
 #define MAX_FRAME_BYTES    512
-#define RX_LINE_BYTES      (MAX_FRAME_BYTES + 1)
 #define DEFAULT_MTU        23
 #define TARGET_MTU         185
 #define MAX_TASK_TEXT_BYTES 384
@@ -89,9 +89,8 @@ static volatile bool s_service_ready = false;
 static volatile bool s_connected = false;
 static volatile bool s_subscribed = false;
 
-static char s_rx_line[RX_LINE_BYTES];
-static size_t s_rx_len = 0;
-static bool s_rx_discard = false;            /* 超长帧丢弃中，直到下一个换行 */
+/* GATT write 是字节流分片，只有 '\n' 才代表一条完整帧。 */
+static pp_rx_assembler_t s_rx;
 static uint32_t s_rx_rejects = 0;            /* 真实拒绝计数，供 's' 状态查询 */
 static uint32_t s_results_ok = 0;
 static SemaphoreHandle_t s_tx_lock = NULL;   /* 串行化多任务发送，避免通知交错 */
@@ -331,32 +330,21 @@ static void pp_handle_result_line(char *line)
              command, status, detail == NULL ? "" : detail, (unsigned)s_results_ok);
 }
 
+static void pp_on_rx_line(char *line, void *ctx)
+{
+    (void)ctx;
+    pp_handle_result_line(line);
+}
+
+static void pp_on_rx_reject(const char *code, const char *detail, void *ctx)
+{
+    (void)ctx;
+    pp_reject(code, detail);
+}
+
 static void pp_feed_rx_bytes(const uint8_t *data, uint16_t len)
 {
-    for (uint16_t i = 0; i < len; i++) {
-        char c = (char)data[i];
-        if (c == '\n') {
-            if (s_rx_discard) {
-                /* 超长帧的尾部：只丢弃，不再报错，也不把残片当新帧解析。 */
-                s_rx_discard = false;
-            } else {
-                s_rx_line[s_rx_len] = '\0';
-                pp_handle_result_line(s_rx_line);
-            }
-            s_rx_len = 0;
-            continue;
-        }
-        if (s_rx_discard) {
-            continue;
-        }
-        if (s_rx_len >= MAX_FRAME_BYTES) {
-            s_rx_len = 0;
-            s_rx_discard = true;
-            pp_reject("FRAME_TOO_LONG", "rx buffer overflow, dropping until newline");
-            continue;
-        }
-        s_rx_line[s_rx_len++] = c;
-    }
+    pp_rx_assembler_feed(&s_rx, data, len, pp_on_rx_line, pp_on_rx_reject, NULL);
 }
 
 /* ------------------------------------------------------------------------- */
@@ -452,8 +440,7 @@ static void pp_gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gat
         s_subscribed = false;
         s_congested = false;
         s_mtu = DEFAULT_MTU;
-        s_rx_len = 0;
-        s_rx_discard = false;
+        pp_rx_assembler_reset(&s_rx);
         pp_led_set_mode(PP_LED_CONNECTING);
         ESP_LOGI(TAG, "PP_CONNECTED conn_id=%u", s_conn_id);
         esp_ble_gap_stop_advertising();
@@ -467,8 +454,7 @@ static void pp_gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gat
         s_subscribed = false;
         s_conn_id = 0xFFFF;
         s_mtu = DEFAULT_MTU;
-        s_rx_len = 0;
-        s_rx_discard = false;
+        pp_rx_assembler_reset(&s_rx);
         s_congested = false;
         pp_start_advertising();
         break;
@@ -876,6 +862,7 @@ static void pp_on_button_event(pp_btn_event_t ev)
 
 void app_main(void)
 {
+    pp_rx_assembler_init(&s_rx);
     esp_err_t ret = nvs_flash_init();
     if (ret == ESP_ERR_NVS_NO_FREE_PAGES || ret == ESP_ERR_NVS_NEW_VERSION_FOUND) {
         ESP_ERROR_CHECK(nvs_flash_erase());
