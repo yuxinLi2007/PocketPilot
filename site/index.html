@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="nPaChw5VSkYzLI9Ecj1sCO" class="js"><head data-page-node-id="AU9wuIJGRSZxVFSF0M5qU9">
+<meta charset="UTF-8" data-page-node-id="CZd6XLrVOSsfyBrDptNTP8">
+<meta name="viewport" content="width=device-width, initial-scale=1" data-page-node-id="BhGfU4waVG3RuOYyX6bY7z">
+<title>PocketPilot · 让手机操作变简单，让父母少一点求助</title>
+<meta name="description" content="PocketPilot 是一款面向中老年人的实体 AI 语音助手：按下按键、说出需求，就能打开联系人、路线和常用服务。关键操作先确认再执行，隐私最小化。" data-page-node-id="etFe9ntZtZSQ5hPNNQkN0y">
+<link rel="icon" href="assets/icons/logo-mark.svg" data-page-node-id="Bf1IWtIiSA3mdGU9s1wHVP">
+<script>document.documentElement.classList.add('js');</script>
+<style>
+/* ============================================================
+   Design tokens — 取自设计稿
+   ============================================================ */
+:root{
+  --bg:#F9F9F9;
+  --surface:#FFFFFF;
+
+  --primary:#014DB2;
+  --primary-deep:#001645;
+  --deep:#0B3A87;
+  --deep-2:#0B3A87;
+
+  --ink:#1A1A2E;
+  --ink-soft:#3A3A55;
+  --ink-muted:#6B6B8A;
+  --ink-faint:#4A4A6A;
+
+  --border:#EBEEF5;
+  --border-mid:#D8DCE8;
+
+  --pink:#FF6B9D;
+  --pink-bg:#FFE4F0;
+  --pink-ink:#C22572;
+  --pink-ink-2:#E8488F;
+
+  --blue-bg:#E0EBFF;
+  --blue-soft:#F0F5FF;
+
+  --yellow:#FFCB47;
+  --yellow-bg:#FFF7DC;
+  --yellow-ink:#8A6A00;
+  --yellow-ink-2:#B8860B;
+
+  --green:#10B981;
+  --green-bg:#E7F8F1;
+  --green-ink:#0B815A;
+
+  --footer-link:#9FB8E5;
+  --footer-muted:#7FA3E0;
+  --footer-body:#C8D8F5;
+  --footer-line:#0B3A87;
+
+  --radius-card:32px;
+  --radius-lg:40px;
+  --radius-pill:50px;
+
+  --shadow-card:0 8px 24px rgba(1,77,178,.06);
+  --shadow-visual:0 24px 60px -12px rgba(1,77,178,.10);
+  --shadow-chip:0 12px 32px -6px rgba(1,77,178,.12);
+  --shadow-cta:0 8px 24px -4px rgba(1,77,178,.25);
+  --shadow-hero-card:0 20px 48px -8px rgba(1,77,178,.18);
+
+  --font-cn:"Noto Sans SC","PingFang SC","Microsoft YaHei","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --font-num:"Inter Tight","Inter","Helvetica Neue",Arial,var(--font-cn);
+
+  --header-h:80px;
+  --pad-x:120px;
+}
+
+/* ============================================================
+   Reset
+   ============================================================ */
+*,*::before,*::after{box-sizing:border-box;}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:var(--font-cn);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+h1,h2,h3,h4,p{margin:0;}
+a{color:inherit;text-decoration:none;}
+button{font:inherit;color:inherit;border:0;background:none;cursor:pointer;}
+img{display:block;max-width:100%;}
+ul{margin:0;padding:0;list-style:none;}
+:focus-visible{outline:3px solid rgba(1,77,178,.45);outline-offset:3px;border-radius:8px;}
+
+/* ============================================================
+   Layout primitives
+   ============================================================ */
+.section{padding:96px var(--pad-x);}
+.section--white{background:var(--surface);}
+.section--tint{background:var(--bg);}
+
+.section-head{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  text-align:center;
+}
+.kicker{
+  font-size:16px;
+  line-height:24px;
+  color:var(--primary);
+  font-weight:500;
+}
+.headline{
+  font-size:44px;
+  line-height:1.32;
+  font-weight:700;
+  letter-spacing:-.5px;
+  color:var(--ink);
+}
+.headline--center{text-align:center;}
+
+.cards{display:grid;gap:24px;}
+.cards--2{grid-template-columns:repeat(2,1fr);}
+.cards--3{grid-template-columns:repeat(3,1fr);}
+.cards--4{grid-template-columns:repeat(4,1fr);}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px 40px;
+  border-radius:var(--radius-pill);
+  font-size:18px;
+  font-weight:600;
+  line-height:1;
+  white-space:nowrap;
+  transition:transform .18s ease,box-shadow .18s ease,background-color .18s ease,color .18s ease;
+}
+.btn--primary{
+  background:var(--primary);
+  color:#fff;
+  box-shadow:var(--shadow-cta);
+}
+.btn--primary:hover{transform:translateY(-2px);box-shadow:0 14px 32px -6px rgba(1,77,178,.38);}
+.btn--ghost{
+  background:var(--surface);
+  color:var(--ink);
+  font-weight:500;
+  border:1px solid var(--border-mid);
+}
+.btn--ghost:hover{transform:translateY(-2px);box-shadow:0 10px 24px -10px rgba(1,77,178,.28);}
+.btn--yellow{
+  background:var(--yellow);
+  color:var(--ink);
+  padding:16px 36px;
+  font-size:17px;
+}
+.btn--yellow:hover{transform:translateY(-2px);box-shadow:0 14px 30px -10px rgba(255,203,71,.7);}
+
+/* ============================================================
+   Header
+   ============================================================ */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:60;
+  background:var(--surface);
+  transition:box-shadow .25s ease;
+}
+.site-header.is-scrolled{box-shadow:0 6px 24px -12px rgba(1,77,178,.28);}
+.header-inner{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:32px;
+  padding:20px max(48px, calc((100vw - 1280px) / 2));
+  min-height:var(--header-h);
+}
+.brand{display:inline-flex;align-items:center;gap:12px;}
+.brand-mark{width:34px;height:34px;}
+.brand-name{
+  font-family:var(--font-num);
+  font-size:24px;
+  font-weight:700;
+  letter-spacing:-.4px;
+  color:var(--ink);
+}
+.nav{display:flex;align-items:center;gap:40px;}
+.nav a{
+  font-size:16px;
+  font-weight:500;
+  color:var(--ink-faint);
+  transition:color .18s ease;
+}
+.nav a:hover{color:var(--primary);}
+.btn-nav{
+  padding:12px 28px;
+  font-size:16px;
+  font-weight:600;
+  box-shadow:none;
+}
+.nav-toggle{
+  display:none;
+  width:44px;height:44px;
+  align-items:center;
+  justify-content:center;
+  border-radius:12px;
+}
+.nav-toggle span{
+  display:block;
+  width:20px;height:2px;
+  background:var(--ink);
+  border-radius:2px;
+  position:relative;
+  transition:background .2s ease;
+}
+.nav-toggle span::before,.nav-toggle span::after{
+  content:"";
+  position:absolute;left:0;
+  width:20px;height:2px;
+  background:var(--ink);
+  border-radius:2px;
+  transition:transform .22s ease,top .22s ease;
+}
+.nav-toggle span::before{top:-6px;}
+.nav-toggle span::after{top:6px;}
+.nav-toggle[aria-expanded="true"] span{background:transparent;}
+.nav-toggle[aria-expanded="true"] span::before{top:0;transform:rotate(45deg);}
+.nav-toggle[aria-expanded="true"] span::after{top:0;transform:rotate(-45deg);}
+
+.mobile-nav{
+  display:none;
+  flex-direction:column;
+  gap:4px;
+  padding:0 24px 24px;
+  border-top:1px solid var(--border);
+  background:var(--surface);
+}
+.mobile-nav a{
+  padding:14px 4px;
+  font-size:17px;
+  font-weight:500;
+  color:var(--ink-soft);
+  border-bottom:1px solid var(--border);
+}
+.mobile-nav a:last-child{border-bottom:0;}
+
+/* ============================================================
+   Hero
+   ============================================================ */
+.hero{
+  position:relative;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:28px;
+  padding:72px var(--pad-x) 64px;
+  background:var(--bg);
+}
+.deco{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(90px);
+  pointer-events:none;
+}
+.deco--pink{width:480px;height:480px;background:var(--pink-bg);opacity:.8;left:-160px;top:-140px;}
+.deco--blue{width:560px;height:560px;background:var(--blue-bg);opacity:.9;right:-80px;top:-80px;}
+.deco--yellow{width:420px;height:420px;background:var(--yellow-bg);opacity:.85;left:200px;top:320px;}
+
+.hero > *:not(.deco){position:relative;z-index:1;}
+
+.badge{
+  display:inline-flex;
+  align-items:center;
+  padding:10px 24px;
+  border-radius:var(--radius-pill);
+  background:var(--blue-bg);
+  color:var(--primary);
+  font-size:15px;
+  font-weight:500;
+}
+.hero-title{
+  font-size:60px;
+  line-height:76px;
+  font-weight:700;
+  letter-spacing:-1px;
+  text-align:center;
+  color:var(--ink);
+  width:100%;
+}
+.hero-sub{
+  font-size:20px;
+  line-height:34px;
+  text-align:center;
+  color:var(--ink-muted);
+  width:100%;
+  max-width:900px;
+}
+.hero-actions{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;}
+.hero-trust{
+  font-size:15px;
+  color:var(--ink-muted);
+  text-align:center;
+}
+
+.hero-visual{
+  position:relative;
+  width:100%;
+  aspect-ratio:2.15;
+  height:auto;
+  margin-top:8px;
+  border-radius:var(--radius-pill);
+  overflow:hidden;
+  background:linear-gradient(135deg,#E0EBFF 0%,#FFE4F0 100%);
+  box-shadow:var(--shadow-visual);
+}
+.hero-visual > img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+.float-chip{
+  position:absolute;
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+  padding:14px 22px;
+  border-radius:24px;
+  background:var(--surface);
+  box-shadow:var(--shadow-chip);
+  font-size:15px;
+  font-weight:500;
+  color:var(--ink);
+  white-space:nowrap;
+}
+.float-chip img{width:24px;height:24px;}
+.float-chip--left{left:44px;bottom:44px;}
+.float-chip--right{right:44px;bottom:44px;}
+
+/* ============================================================
+   Pain
+   ============================================================ */
+.pain{
+  display:grid;
+  grid-template-columns:1fr 520px;
+  gap:80px;
+  align-items:center;
+  padding:96px var(--pad-x);
+  background:var(--surface);
+}
+.pain-copy{display:flex;flex-direction:column;gap:28px;}
+.pain-title{
+  font-size:44px;
+  line-height:58px;
+  font-weight:700;
+  letter-spacing:-.5px;
+  color:var(--ink);
+}
+.pain-list{display:flex;flex-direction:column;gap:18px;}
+.pain-item{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  font-size:18px;
+  color:var(--ink-soft);
+}
+.pain-item img{width:40px;height:40px;flex:0 0 40px;}
+.pain-visual{
+  width:100%;
+  height:540px;
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  background:linear-gradient(180deg,#FFF7DC 0%,#FFE4F0 100%);
+}
+.pain-visual img{width:100%;height:100%;object-fit:cover;}
+
+/* ============================================================
+   Step cards
+   ============================================================ */
+.step-card{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:36px;
+  border-radius:var(--radius-card);
+  background:var(--surface);
+  box-shadow:var(--shadow-card);
+}
+.step-num{
+  font-family:var(--font-num);
+  font-size:15px;
+  font-weight:700;
+  color:var(--primary);
+  letter-spacing:.5px;
+}
+.step-card img.icon-56{width:56px;height:56px;}
+.step-title{
+  font-size:22px;
+  line-height:1.45;
+  font-weight:600;
+  color:var(--ink);
+}
+.step-desc{
+  font-size:16px;
+  line-height:26px;
+  color:var(--ink-muted);
+}
+
+/* ============================================================
+   Scenes
+   ============================================================ */
+.scene-card{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  padding:30px;
+  border-radius:var(--radius-card);
+  background:var(--bg);
+  border:1px solid var(--border);
+  transition:transform .2s ease,box-shadow .2s ease,background-color .2s ease;
+}
+.scene-card:hover{
+  transform:translateY(-4px);
+  background:var(--surface);
+  box-shadow:var(--shadow-card);
+}
+.scene-card img.icon-52{width:52px;height:52px;}
+.scene-title{
+  font-size:21px;
+  font-weight:600;
+  color:var(--ink);
+}
+.scene-quote{
+  padding:10px 16px;
+  border-radius:16px;
+  background:var(--blue-bg);
+  color:var(--primary);
+  font-size:15px;
+  font-weight:500;
+  line-height:1.5;
+}
+.scene-quote--pink{background:var(--pink-bg);color:var(--pink-ink);}
+.scene-quote--yellow{background:var(--yellow-bg);color:var(--yellow-ink);}
+.scene-quote--green{background:var(--green-bg);color:var(--green-ink);}
+.chip{
+  align-self:flex-start;
+  padding:6px 14px;
+  border-radius:var(--radius-pill);
+  font-size:13px;
+  font-weight:500;
+  line-height:1.4;
+}
+.chip--green{background:var(--green-bg);color:var(--green-ink);}
+.chip--yellow{background:var(--yellow-bg);color:var(--yellow-ink);}
+
+/* Family preset card */
+.family-card{
+  display:grid;
+  grid-template-columns:1fr 430px;
+  gap:48px;
+  align-items:center;
+  margin-top:32px;
+  padding:48px;
+  border-radius:var(--radius-lg);
+  background:linear-gradient(90deg,#014DB2 0%,#001645 100%);
+  box-shadow:var(--shadow-hero-card);
+  color:#fff;
+}
+.family-copy{display:flex;flex-direction:column;gap:20px;}
+.family-badge{
+  align-self:flex-start;
+  padding:8px 18px;
+  border-radius:var(--radius-pill);
+  background:var(--yellow);
+  color:var(--ink);
+  font-size:14px;
+  font-weight:500;
+}
+.family-title{
+  font-size:32px;
+  line-height:42px;
+  font-weight:700;
+}
+.family-desc{
+  font-size:16px;
+  line-height:28px;
+  color:var(--footer-body);
+}
+.preset{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  font-size:15px;
+  flex-wrap:wrap;
+}
+.preset-say{
+  padding:8px 16px;
+  border-radius:var(--radius-pill);
+  background:var(--deep);
+  color:#fff;
+  font-weight:500;
+  white-space:nowrap;
+}
+.preset img{width:18px;height:18px;}
+.preset-result{color:#E6EEFC;}
+.family-visual{
+  width:100%;
+  height:auto;
+  border-radius:28px;
+  overflow:hidden;
+  background:#E9E2D8;
+  box-shadow:0 28px 64px rgba(0,8,32,.5);
+}
+.family-visual img{width:100%;height:auto;display:block;}
+
+/* ============================================================
+   Trust
+   ============================================================ */
+.trust-card{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  padding:36px;
+  border-radius:var(--radius-card);
+  background:var(--surface);
+  box-shadow:var(--shadow-card);
+}
+.trust-card img{width:56px;height:56px;}
+.trust-title{
+  font-size:22px;
+  font-weight:600;
+  color:var(--ink);
+}
+.trust-desc{
+  font-size:16px;
+  line-height:26px;
+  color:var(--ink-muted);
+}
+
+/* ============================================================
+   Who
+   ============================================================ */
+.who-card{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  padding:36px;
+  border-radius:var(--radius-card);
+  background:var(--bg);
+  border:1px solid var(--border);
+}
+.who-tag{
+  align-self:flex-start;
+  padding:6px 14px;
+  border-radius:var(--radius-pill);
+  font-size:13px;
+  font-weight:500;
+}
+.who-tag--pink{background:var(--pink-bg);color:var(--pink-ink);}
+.who-tag--blue{background:var(--blue-bg);color:var(--primary);}
+.who-tag--yellow{background:var(--yellow-bg);color:var(--yellow-ink);}
+.who-title{
+  font-size:24px;
+  font-weight:600;
+  color:var(--ink);
+}
+.who-desc{
+  font-size:16px;
+  line-height:27px;
+  color:var(--ink-muted);
+}
+
+/* ============================================================
+   Tech band
+   ============================================================ */
+.tech{padding:40px var(--pad-x);background:var(--bg);}
+.tech-band{
+  display:flex;
+  align-items:center;
+  gap:20px;
+  padding:28px 44px;
+  border-radius:var(--radius-card);
+  background:linear-gradient(90deg,#014DB2 0%,#001645 100%);
+  color:#fff;
+}
+.tech-band img{width:36px;height:36px;flex:0 0 36px;}
+.tech-band p{
+  font-size:17px;
+  font-weight:500;
+  line-height:1.6;
+}
+
+/* ============================================================
+   Lab
+   ============================================================ */
+.lab{padding:48px var(--pad-x) 96px;background:var(--bg);}
+.lab-card{
+  display:flex;
+  flex-direction:column;
+  gap:36px;
+  padding:48px;
+  border-radius:var(--radius-lg);
+  background:var(--primary-deep);
+  color:#fff;
+}
+.lab-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+}
+.lab-head-copy{display:flex;flex-direction:column;gap:10px;}
+.lab-kicker{
+  font-size:15px;
+  font-weight:500;
+  color:var(--footer-muted);
+}
+.lab-title{
+  font-size:30px;
+  line-height:1.4;
+  font-weight:700;
+}
+.lab-entry{
+  display:inline-flex;
+  align-items:center;
+  padding:12px 26px;
+  border-radius:var(--radius-pill);
+  border:1px solid rgba(127,163,224,.9);
+  color:#fff;
+  font-size:15px;
+  font-weight:500;
+  white-space:nowrap;
+  transition:background-color .18s ease;
+}
+.lab-entry:hover{background:rgba(127,163,224,.16);}
+.lab-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;}
+.lab-item{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  padding:24px;
+  border-radius:24px;
+  background:var(--deep);
+}
+.lab-item h3{
+  font-size:18px;
+  font-weight:600;
+}
+.lab-item p{
+  font-size:14px;
+  line-height:22px;
+  color:var(--footer-link);
+}
+
+/* ============================================================
+   Buy
+   ============================================================ */
+.buy-card{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  padding:40px;
+  border-radius:var(--radius-card);
+  background:var(--bg);
+  border:1px solid var(--border);
+}
+.buy-card--featured{
+  background:var(--blue-soft);
+  border:1.5px solid var(--primary);
+}
+.buy-tag{
+  align-self:flex-start;
+  padding:6px 16px;
+  border-radius:var(--radius-pill);
+  font-size:13px;
+  font-weight:500;
+}
+.buy-tag--solid{background:var(--primary);color:#fff;}
+.buy-tag--soft{background:var(--yellow-bg);color:var(--yellow-ink);}
+.buy-title{
+  font-size:26px;
+  font-weight:600;
+  color:var(--ink);
+}
+.buy-desc{
+  font-size:16px;
+  line-height:26px;
+  color:var(--ink-muted);
+}
+.buy-list{display:flex;flex-direction:column;gap:12px;margin-top:2px;}
+.buy-list li{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:15px;
+  color:var(--ink-soft);
+}
+.buy-list img{width:20px;height:20px;flex:0 0 20px;}
+
+/* ============================================================
+   Vision CTA
+   ============================================================ */
+.cta{padding:48px var(--pad-x) 96px;background:var(--bg);}
+.cta-card{
+  display:grid;
+  grid-template-columns:1fr 440px;
+  gap:56px;
+  align-items:center;
+  padding:56px;
+  border-radius:var(--radius-lg);
+  background:linear-gradient(90deg,#014DB2 0%,#001645 100%);
+  color:#fff;
+}
+.cta-copy{display:flex;flex-direction:column;gap:22px;}
+.cta-kicker{
+  font-family:var(--font-num);
+  font-size:14px;
+  font-weight:600;
+  letter-spacing:.6px;
+  color:var(--footer-muted);
+}
+.cta-title{
+  font-size:40px;
+  line-height:54px;
+  font-weight:700;
+}
+.cta-desc{
+  font-size:16px;
+  line-height:28px;
+  color:var(--footer-body);
+}
+.cta-actions{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin-top:2px;
+}
+.cta-note{
+  font-size:14px;
+  color:var(--footer-link);
+}
+.cta-visual{
+  width:100%;
+  height:auto;
+  border-radius:28px;
+  overflow:hidden;
+  background:#E9E2D8;
+  box-shadow:0 28px 64px rgba(0,8,32,.5);
+}
+.cta-visual img{width:100%;height:auto;display:block;}
+
+/* ============================================================
+   FAQ
+   ============================================================ */
+.faq{padding:0 var(--pad-x) 96px;background:var(--bg);}
+.faq-title{
+  font-size:32px;
+  font-weight:700;
+  color:var(--ink);
+  margin-bottom:32px;
+}
+.faq-list{display:flex;flex-direction:column;gap:16px;}
+.faq-item{
+  background:var(--surface);
+  border-radius:24px;
+  overflow:hidden;
+  transition:box-shadow .2s ease;
+}
+.faq-item.is-open{box-shadow:var(--shadow-card);}
+.faq-q{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  width:100%;
+  padding:26px 32px;
+  text-align:left;
+}
+.faq-q span:first-child{
+  font-size:18px;
+  font-weight:500;
+  color:var(--ink);
+  line-height:1.5;
+}
+.faq-plus{
+  width:24px;height:24px;
+  flex:0 0 24px;
+  transition:transform .28s ease;
+}
+.faq-item.is-open .faq-plus{transform:rotate(45deg);}
+.faq-a{
+  max-height:0;
+  overflow:hidden;
+  transition:max-height .32s ease;
+}
+.faq-a p{
+  padding:0 32px 28px;
+  font-size:16px;
+  line-height:28px;
+  color:var(--ink-muted);
+  max-width:900px;
+}
+.faq-note{
+  margin-top:28px;
+  font-size:15px;
+  color:var(--ink-muted);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.footer{
+  padding:64px var(--pad-x) 40px;
+  background:var(--primary-deep);
+  color:#fff;
+}
+.footer-top{
+  display:grid;
+  grid-template-columns:1.6fr 1fr 1fr 1fr;
+  gap:80px;
+  padding-bottom:44px;
+}
+.footer-brand{display:flex;flex-direction:column;gap:18px;max-width:460px;}
+.footer-brand-row{display:flex;align-items:center;gap:12px;}
+.footer-brand-row img{width:30px;height:30px;}
+.footer-brand-row span{
+  font-family:var(--font-num);
+  font-size:22px;
+  font-weight:700;
+  letter-spacing:-.3px;
+}
+.footer-tagline{
+  font-size:14px;
+  line-height:24px;
+  color:var(--footer-link);
+}
+.footer-col{display:flex;flex-direction:column;gap:16px;}
+.footer-col h4{
+  font-size:15px;
+  font-weight:600;
+  color:#fff;
+}
+.footer-col a{
+  font-size:14px;
+  color:var(--footer-link);
+  transition:color .18s ease;
+  width:fit-content;
+}
+.footer-col a:hover{color:#fff;}
+.footer-divider{height:1px;background:var(--footer-line);}
+.footer-bottom{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:24px;
+  flex-wrap:wrap;
+  padding-top:24px;
+  font-size:13px;
+  color:var(--footer-muted);
+}
+
+/* ============================================================
+   Reveal animation
+   ============================================================ */
+.js .reveal{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .7s cubic-bezier(.22,.61,.36,1),transform .7s cubic-bezier(.22,.61,.36,1);
+}
+.js .reveal.is-visible{opacity:1;transform:none;}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+/* 超宽屏：内容保持 1200px 稿宽，两侧留白自动加大 */
+@media (min-width:1441px){
+  :root{--pad-x:calc((100vw - 1200px) / 2);}
+}
+@media (max-width:1320px){
+  :root{--pad-x:80px;}
+  .pain{grid-template-columns:1fr 440px;gap:56px;}
+  .footer-top{gap:56px;}
+}
+@media (max-width:1160px){
+  :root{--pad-x:56px;}
+  .headline{font-size:38px;}
+  .hero-title{font-size:52px;line-height:66px;}
+  .pain-title{font-size:38px;line-height:50px;}
+  .cards--4{grid-template-columns:repeat(2,1fr);}
+  .family-card{grid-template-columns:1fr 380px;gap:36px;padding:40px;}
+  .cta-card{grid-template-columns:1fr 340px;gap:40px;padding:44px;}
+  .lab-grid{grid-template-columns:repeat(2,1fr);}
+  .footer-top{grid-template-columns:1.4fr 1fr 1fr 1fr;gap:40px;}
+}
+@media (max-width:980px){
+  .nav,.btn-nav{display:none;}
+  .nav-toggle{display:inline-flex;}
+  .mobile-nav{display:none;}
+  .mobile-nav.is-open{display:flex;}
+  .pain{grid-template-columns:1fr;gap:40px;}
+  .pain-visual{height:400px;order:-1;}
+  .cards--2{grid-template-columns:1fr;}
+  .cards--3{grid-template-columns:1fr;}
+  .family-card{grid-template-columns:1fr;}
+  .family-visual{width:min(100%,420px);margin:0 auto;}
+  .cta-card{grid-template-columns:1fr;}
+  .cta-visual{width:min(100%,340px);margin:0 auto;order:-1;}
+  .footer-top{grid-template-columns:1fr 1fr;gap:40px;}
+  .footer-brand{grid-column:1 / -1;max-width:none;}
+  .lab-head{flex-direction:column;align-items:flex-start;gap:18px;}
+  .lab-card{padding:36px;}
+}
+@media (max-width:720px){
+  :root{--pad-x:20px;--radius-card:24px;--radius-lg:28px;}
+  .header-inner{padding:14px 20px;gap:16px;}
+  .brand-name{font-size:21px;}
+  .section{padding:64px var(--pad-x);}
+  .hero{padding:48px var(--pad-x) 48px;gap:22px;}
+  .hero-title{font-size:34px;line-height:46px;letter-spacing:-.4px;}
+  .hero-sub{font-size:16px;line-height:27px;}
+  .headline{font-size:28px;line-height:1.4;}
+  .pain{padding:64px var(--pad-x);}
+  .pain-title{font-size:30px;line-height:42px;}
+  .pain-item{font-size:16px;align-items:flex-start;}
+  .pain-item img{width:32px;height:32px;flex:0 0 32px;}
+  .pain-visual{height:320px;}
+  .hero-visual{aspect-ratio:2.05;border-radius:28px;}
+  .float-chip{display:none;}
+  .btn{padding:16px 28px;font-size:16px;}
+  .btn--yellow{padding:14px 26px;font-size:16px;}
+  .step-card,.trust-card,.who-card,.buy-card{padding:26px;}
+  .step-title,.trust-title{font-size:20px;}
+  .scene-card{padding:24px;}
+  .family-card{padding:26px;gap:26px;}
+  .family-title{font-size:24px;line-height:34px;}
+  .family-visual{width:min(100%,320px);margin:0 auto;}
+  .tech{padding:32px var(--pad-x);}
+  .tech-band{padding:22px;align-items:flex-start;gap:14px;}
+  .tech-band p{font-size:15px;}
+  .lab{padding:32px var(--pad-x) 64px;}
+  .lab-card{padding:26px;gap:26px;}
+  .lab-title{font-size:22px;}
+  .lab-grid{grid-template-columns:1fr;}
+  .cta{padding:32px var(--pad-x) 64px;}
+  .cta-card{padding:28px;gap:28px;}
+  .cta-title{font-size:28px;line-height:40px;}
+  .cta-visual{width:min(100%,300px);margin:0 auto;}
+  .faq{padding:0 var(--pad-x) 64px;}
+  .faq-title{font-size:24px;margin-bottom:22px;}
+  .faq-q{padding:20px;}
+  .faq-q span:first-child{font-size:16px;}
+  .faq-a p{padding:0 20px 22px;font-size:15px;line-height:26px;}
+  .footer{padding:48px var(--pad-x) 32px;}
+  .footer-top{gap:32px;padding-bottom:32px;}
+  .footer-bottom{flex-direction:column;align-items:flex-start;gap:8px;}
+  .cards{gap:18px;}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto;}
+  *,*::before,*::after{transition-duration:.01ms !important;animation-duration:.01ms !important;}
+  .js .reveal{opacity:1;transform:none;}
+}
+</style>
+<style id="__dm_no_drag_style__">* { -webkit-user-drag: none !important; }</style><style id="__dm_bindable_badge_style__">[data-sp-bindable="database"]{outline:1px dashed #0088ff;outline-offset:2px;border-radius:4px;}[data-sp-bindable="database"] *{pointer-events:none !important;transition:none !important;animation:none !important;}[data-sp-bindable="database"]{transition:none !important;animation:none !important;}</style></head>
+<body data-page-node-id="PfvoR7aQAMTxQdtu296K6U" style="">
+
+<!-- ================= Header ================= -->
+<header class="site-header is-scrolled" id="top" data-page-node-id="vVPtdzPGjWh3Hembr2nHdo">
+  <div class="header-inner" data-page-node-id="GuRhHxeBECFvNICOwAzAxS">
+    <a class="brand" href="#top" aria-label="PocketPilot 首页" data-page-node-id="BdvdrAQxlMiJ07rHtewlds">
+      <img class="brand-mark" src="assets/icons/logo-mark.svg" width="34" height="34" alt="" data-page-node-id="QiA1N3C3oWIxeSdog7IYnA">
+      <span class="brand-name" data-page-node-id="pgYjWOo04kF8YEM6I9gTWn">PocketPilot</span>
+    </a>
+    <nav class="nav" aria-label="主导航" data-page-node-id="z4pDVQuzCu58U4AZ6vIiAG">
+      <a href="#how" data-page-node-id="7B5JihfjFCHJT2BETZiMmA">产品介绍</a>
+      <a href="#scenes" data-page-node-id="rAiBOEY9BJx54lZABsbEBD">核心场景</a>
+      <a href="#trust" data-page-node-id="usXvm7VA2Gc4thYHneOV8D">安心保障</a>
+      <a href="#buy" data-page-node-id="nqzxOGSt7SyuzyG6hXBw9f">合作购买</a>
+    </nav>
+    <a class="btn btn--primary btn-nav" href="#pilot" data-page-node-id="8d41DIYFuHnVNTJxvbMUEb">为父母预约试点</a>
+    <button class="nav-toggle" type="button" aria-label="打开菜单" aria-expanded="false" aria-controls="mobileNav" data-page-node-id="3TMbi7AGheogHdSjD9YNOg">
+      <span data-page-node-id="KJSpTCmwcOtIjqZAQjcsJp"></span>
+    </button>
+  </div>
+  <nav class="mobile-nav" id="mobileNav" aria-label="移动导航" data-page-node-id="cnXN2gZh4Nh15qicpjyYgu">
+    <a href="#how" data-page-node-id="IRSmZ9YC4tMGJi96jI8ok1">产品介绍</a>
+    <a href="#scenes" data-page-node-id="c2SDRmVPESCRtEt3lLhvTH">核心场景</a>
+    <a href="#trust" data-page-node-id="LsTnOK2ZSt2AED1ffpgbkd">安心保障</a>
+    <a href="#buy" data-page-node-id="7gOqLcqt4zsvkGrxcEHpaG">合作购买</a>
+    <a href="#pilot" data-page-node-id="jiBC9jyMqr0oPNjpcmTczc">为父母预约试点</a>
+  </nav>
+</header>
+
+<main data-page-node-id="KDX9lrefHwDE6A9IBYq0PK">
+
+<!-- ================= Hero ================= -->
+<section class="hero" data-page-node-id="oc0bjfkAVV0uo0ZMqMkwlM">
+  <div class="deco deco--pink" aria-hidden="true" data-page-node-id="HKkzm1JBJIgG8Th8jN3Gg7"></div>
+  <div class="deco deco--blue" aria-hidden="true" data-page-node-id="f5jT2EWOVNcOiplgAarsWl"></div>
+  <div class="deco deco--yellow" aria-hidden="true" data-page-node-id="rcU3d9kpo07zKyoFpkJZHz"></div>
+
+  <div class="badge reveal is-visible" data-page-node-id="bFsywFBBpk9eVHlbJLHBHw">面向中老年人的实体 AI 语音助手</div>
+
+  <h1 class="hero-title reveal is-visible" data-page-node-id="RUSprnF0LlhnmcNEM1ooHy">让手机操作变简单，<br data-page-node-id="3IBysz27BBLEAYE5orgdHo">让父母少一点求助</h1>
+
+  <p class="hero-sub reveal is-visible" data-page-node-id="is1HIe9Cr2BvY11UpIQP7H">按下按键、说出需求，PocketPilot 就会帮父母打开联系人、路线和常用服务。<br data-page-node-id="rcyUmk4txKyJxJ5hEQH4N5">它不追求接管整部手机，而是把繁琐重复的操作，变成简单的一句对话。</p>
+
+  <div class="hero-actions reveal is-visible" data-page-node-id="e4dNsLUELffJTs6XHQrWL1">
+    <a class="btn btn--primary" href="#pilot" data-page-node-id="hHW6kCGHcqeOMyDzwe9dfl">为父母预约试点</a>
+    <a class="btn btn--ghost" href="#how" data-page-node-id="DkB9wa9rBYaxILGxo9EOSm">了解 PocketPilot</a>
+  </div>
+
+  <p class="hero-trust reveal is-visible" data-page-node-id="0VctALWUCi6bXu3tyi3lyY">实体按键入口&nbsp;&nbsp;·&nbsp;&nbsp;中文语音交互&nbsp;&nbsp;·&nbsp;&nbsp;关键操作先确认再执行</p>
+
+  <div class="hero-visual reveal is-visible" data-page-node-id="Ahto54UaAsRXhtXI38MoYA">
+    <img src="assets/images/hero-product.png" alt="PocketPilot 实体语音控制器：正面、侧面与背面三个视角" data-page-node-id="8LuAnAbh4WIE81TXgILjCk">
+    <div class="float-chip float-chip--left" data-page-node-id="Qz058sC580buYgNuWo19Tq">
+      <img src="assets/icons/chip-check.svg" alt="" data-page-node-id="00hHxdHLOqCqi1RLtnHgGu">
+      <span data-page-node-id="9YOwGQ9Mc5dpQZHuVPjB8o">已打开：女儿的拨号界面</span>
+    </div>
+    <div class="float-chip float-chip--right" data-page-node-id="mDgTEL13u3DUEU5uUFV3te">
+      <img src="assets/icons/chip-route.svg" alt="" data-page-node-id="FsDQzeCE0XNzFVdxwNFk8x">
+      <span data-page-node-id="r8hv9ud4QOPm6iKbRbE1jA">回家的路线已准备好</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Pain ================= -->
+<section class="pain" id="why" data-page-node-id="oQ9RYaqr6FLiMzVnZEmTmp">
+  <div class="pain-copy reveal is-visible" data-page-node-id="C437KPxlB8MokR3RLQ4JgE">
+    <p class="kicker" data-page-node-id="ABqZGeFNpqcPTLHDjB9O8q">为什么需要 PocketPilot</p>
+    <h2 class="pain-title" data-page-node-id="cCtGTHGogOKZBQ3uPcBvk0">会用微信，<br data-page-node-id="TEdltoUe1E7JLxnvLSaDwY">不等于所有操作都轻松</h2>
+    <div class="pain-list" data-page-node-id="3bPswGrUpyzxyLdsxOUYC4">
+      <div class="pain-item" data-page-node-id="Sa10InmUYPRXAkGfHiI8C1">
+        <img src="assets/icons/pain-1.svg" alt="" data-page-node-id="4immmEthos04fTsWrsWiHk">
+        <span data-page-node-id="GMxdBRYdjdpsNEURle6y0D">想找地图里收藏的地址，翻了半天也没找到</span>
+      </div>
+      <div class="pain-item" data-page-node-id="YDowr7fZnGeFUNjn8GUHDp">
+        <img src="assets/icons/pain-2.svg" alt="" data-page-node-id="Kcwfhk8HHc5i4CqBKwdsVT">
+        <span data-page-node-id="sleDDZ4H5x7DdUNtSBB2N2">页面之间来回切换，一不留神就迷了路</span>
+      </div>
+      <div class="pain-item" data-page-node-id="UIZDi8zWofIt9BonsdkUtP">
+        <img src="assets/icons/pain-3.svg" alt="" data-page-node-id="miRQUXyhwWcbo0wO23yzNU">
+        <span data-page-node-id="4P6LkM5csSjDMMXEFf2C7w">同一个问题反复问子女，问完转眼又忘了</span>
+      </div>
+    </div>
+  </div>
+  <div class="pain-visual reveal is-visible" data-page-node-id="2sv6uFv6I2vKEXEcu7TAGz">
+    
+  <img src="assets/images/pain-scene.png" alt="老人眯着眼睛看手机屏幕，有些困惑" data-page-node-id="Ay0HTGu94pUpvlOcUjkr4y"></div>
+</section>
+
+<!-- ================= How it works ================= -->
+<section class="section section--tint" id="how" data-page-node-id="7FJEKqQ2HNLEHhBumwbTXJ">
+  <div class="section-head reveal is-visible" style="margin-bottom:56px;" data-page-node-id="p6OINhyXGDfgUwC0HgccGV">
+    <p class="kicker" data-page-node-id="zGKFQis2PiDUYGoBrsrjJd">它是怎么工作的</p>
+    <h2 class="headline" data-page-node-id="030xiCIlUA1Xcn0fQ7ksCU">一个按键 + 一句话，手机就办好</h2>
+  </div>
+
+  <div class="cards cards--3" data-page-node-id="mSUCyyAgJsfs6qdOm6jz54">
+    <article class="step-card reveal" data-page-node-id="XW1sr5mCDXIc9n0lJ2uqR3">
+      <span class="step-num" data-page-node-id="xtfDEnKw6DJMRklpRZBUKX">01</span>
+      <img class="icon-56" src="assets/icons/step-1.svg" alt="" data-page-node-id="wv4ELmLoQ3D8X0fN57sT6V">
+      <h3 class="step-title" data-page-node-id="KtfA6k1CnxFqWeVcFjAy0J">按下实体按键</h3>
+      <p class="step-desc" data-page-node-id="PzKG0gzBA7fBhAkCzR64Eg">不用解锁手机、不用翻找图标，设备就在手边，握住就能用。</p>
+    </article>
+    <article class="step-card reveal" data-page-node-id="jKdoD1zwosQniHvdKjGNGB">
+      <span class="step-num" data-page-node-id="maaSjXeiumJwk4RAnXR0Sz">02</span>
+      <img class="icon-56" src="assets/icons/step-2.svg" alt="" data-page-node-id="j2VaLJ71ehiZE8twRJWvGC">
+      <h3 class="step-title" data-page-node-id="Zm2ZkjTWxQsYWnMSNF3Cc6">说出需求</h3>
+      <p class="step-desc" data-page-node-id="sQ5hCbGBWETkXI0aYEF9RA">「我要给女儿打电话」「帮我打开回家的路线」，用中文说就行。</p>
+    </article>
+    <article class="step-card reveal" data-page-node-id="6IMYvoKkYOBTPHVPTe51Ep">
+      <span class="step-num" data-page-node-id="i2wC9ASqvyniy0Pjj2uVZi">03</span>
+      <img class="icon-56" src="assets/icons/step-3.svg" alt="" data-page-node-id="tMMD6jApLtmHdMzUoMfxID">
+      <h3 class="step-title" data-page-node-id="YUvRwRCABmhT8QEZFUqLWH">手机执行，关键操作先确认</h3>
+      <p class="step-desc" data-page-node-id="9ABkFBg23PoYeRFXDTHh0m">PocketPilot 只调用受支持的功能，拨号、导航前都会先请用户确认，不会乱点屏幕。</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= Scenes ================= -->
+<section class="section section--white" id="scenes" data-page-node-id="n23uGNh8o7BkdDkpW1aB5H">
+  <div class="section-head reveal" style="margin-bottom:56px;" data-page-node-id="lb5LXVU3EN86vGFp3vYjIm">
+    <p class="kicker" data-page-node-id="lG5lh7MuZv3RXlosBEGjpW">核心场景</p>
+    <h2 class="headline" data-page-node-id="7ZNqJ7ksL8cwf8ZkHw06Zm">不追求什么都会，只把高频任务做可靠</h2>
+  </div>
+
+  <div class="cards cards--4" data-page-node-id="Sym1v8H0Qt9szKYm7ZeRF9">
+    <article class="scene-card reveal" data-page-node-id="mouNLWB0KwkHGtc09gZZgl">
+      <img class="icon-52" src="assets/icons/scene-1.svg" alt="" data-page-node-id="qAkiQ8Oonaw8PXxNFbaFNx">
+      <h3 class="scene-title" data-page-node-id="ITXLrEtGgHSDcC1kBUF855">联系家人</h3>
+      <p class="scene-quote" data-page-node-id="h4SYv6OuRemqHWpHjLCZ12">“我要给女儿打电话。”</p>
+      <span class="chip chip--green" data-page-node-id="mYEiSfXgjxarKh9zFtn3fU">首版验证</span>
+    </article>
+    <article class="scene-card reveal" data-page-node-id="HO65Hh4F8E8tcCRj1HPlOx">
+      <img class="icon-52" src="assets/icons/scene-2.svg" alt="" data-page-node-id="1lnIQbfo05v7LHIlwz7cbq">
+      <h3 class="scene-title" data-page-node-id="gJIeRC7wGBIYSNeiUV9ACy">回家路线</h3>
+      <p class="scene-quote scene-quote--pink" data-page-node-id="V4SaoTai9AVv05x7k1CuS6">“帮我打开回家的路线。”</p>
+      <span class="chip chip--green" data-page-node-id="hmEa5DJvLHwE9VT3VfHxQB">首版验证</span>
+    </article>
+    <article class="scene-card reveal" data-page-node-id="jzXHCqOQBe8hGX4D7ZZpri">
+      <img class="icon-52" src="assets/icons/scene-3.svg" alt="" data-page-node-id="5AKDkBxcVLUZAp5pLfJwqH">
+      <h3 class="scene-title" data-page-node-id="qiamtPmwdl1ZtpkJ5RGOO6">常用服务</h3>
+      <p class="scene-quote scene-quote--yellow" data-page-node-id="foHPj3ZPgn76ZCfWb1MIqS">“打开我的常用服务。”</p>
+      <span class="chip chip--green" data-page-node-id="71qBxBATJYN6UuKpTZOUJj">首版验证</span>
+    </article>
+    <article class="scene-card reveal" data-page-node-id="TCUoNyglR3CpjTE7CSOkOm">
+      <img class="icon-52" src="assets/icons/scene-4.svg" alt="" data-page-node-id="EzHEUFIFipthNdcBKqz7qM">
+      <h3 class="scene-title" data-page-node-id="lHZ03VNxbr5X5ImeY8hool">视频通话</h3>
+      <p class="scene-quote scene-quote--green" data-page-node-id="G7GlBOZ4xCY9lHcvE6gPB3">“我要和家里人视频。”</p>
+      <span class="chip chip--yellow" data-page-node-id="uOBqmFraonmTaOvajSMsbP">后续验证</span>
+    </article>
+  </div>
+
+  <div class="family-card reveal" data-page-node-id="Y2xOcJdDNqyjrgKZbxcWKx">
+    <div class="family-copy" data-page-node-id="nNGMq1gwUX7S2gNpGuLCIy">
+      <span class="family-badge" data-page-node-id="UZni641BIE0qYRHQ1cRYiI">家庭预设模式</span>
+      <h3 class="family-title" data-page-node-id="k22izwL4ayRSwgPSZMBmmM">子女配置一次，父母开口就能用</h3>
+      <p class="family-desc" data-page-node-id="GxhkafX4mv3J8MGraeX5d0">初次设置时，子女帮父母把常用操作预设好。老人日常不需要学提示词，也不用和 AI 长篇对话——按一下，说一个词就行。</p>
+
+      <div class="preset" data-page-node-id="rb3FYzLlKpUTEJjJGI2F3S">
+        <span class="preset-say" data-page-node-id="HFhv9Oqut1U8wkAiR3FqBt">说「女儿」</span>
+        <img src="assets/icons/arrow.svg" alt="" data-page-node-id="3jyuta7GOCgmO5HL6lyCT2">
+        <span class="preset-result" data-page-node-id="l218RLXLjCyVI5g1KFzEeT">打开女儿的拨号界面</span>
+      </div>
+      <div class="preset" data-page-node-id="UOUcMw0zk0NyYL99RBImGz">
+        <span class="preset-say" data-page-node-id="ln44ZCR5uswEzeOxpiXabY">说「回家」</span>
+        <img src="assets/icons/arrow.svg" alt="" data-page-node-id="y2n79noUyIkVhLYL37AjHf">
+        <span class="preset-result" data-page-node-id="Mgy2gf5zHHg4esiJA4E3OK">打开家庭导航路线</span>
+      </div>
+    </div>
+    <div class="family-visual" data-page-node-id="EtrYHowqZgD8jPIBE3G2py">
+      <img src="assets/images/family-call.jpg" alt="客厅里，母亲拿着手机与家人通话，手机背面是 PocketPilot 控制器" data-page-node-id="0hZ8bB0nFTmOx0QHh4uAy6">
+    </div>
+  </div>
+</section>
+
+<!-- ================= Trust ================= -->
+<section class="section section--tint" id="trust" data-page-node-id="DnygTNXQxkMEnsC6arIaeT">
+  <div class="section-head reveal" style="margin-bottom:56px;" data-page-node-id="TLSwgTsoXTzYMzktgDkDcU">
+    <p class="kicker" data-page-node-id="ZxFoF3iWmj7gO5RycP4WZv">安心保障</p>
+    <h2 class="headline" data-page-node-id="aHAb2inhY0quQw2Z2enX1h">可靠性优先，比功能数量更重要</h2>
+  </div>
+
+  <div class="cards cards--3" data-page-node-id="VGUqqic3Mf87IxJ8CNBhQy">
+    <article class="trust-card reveal" data-page-node-id="tCQLnbuHJUUTNLM2tz2cMn">
+      <img src="assets/icons/trust-1.svg" alt="" data-page-node-id="p4EdB9GstWnJ9Kopt9tXp5">
+      <h3 class="trust-title" data-page-node-id="N3v4V9nrses5CtEc1Wu18U">三级操作确认</h3>
+      <p class="trust-desc" data-page-node-id="WdboyWqOC8HXgo8pwxLZrK">低风险直接执行，中风险先请用户确认，拨号、发送等重要操作前一定先确认，任务随时可以取消。</p>
+    </article>
+    <article class="trust-card reveal" data-page-node-id="uhYwMvlBUFJiwiKuEFNgtT">
+      <img src="assets/icons/trust-2.svg" alt="" data-page-node-id="fLuEYGJ8rGTBwV7W7dnx2t">
+      <h3 class="trust-title" data-page-node-id="xGV7WizLd0pxsBrgJRy6tv">隐私最小化</h3>
+      <p class="trust-desc" data-page-node-id="oCYmRAcIAN39ASVHcuAfC6">默认只收集任务类型与执行状态，不收集语音录音、聊天记录和通知正文；敏感操作需要用户主动授权。</p>
+    </article>
+    <article class="trust-card reveal" data-page-node-id="MobjXdcB5pCAJtZQ81wDJy">
+      <img src="assets/icons/trust-3.svg" alt="" data-page-node-id="Vj4KjeFPwuzD8K0M7GFlNh">
+      <h3 class="trust-title" data-page-node-id="pYC0yhSJgUjBTUdGNEaEY2">受约束的执行</h3>
+      <p class="trust-desc" data-page-node-id="RlZFm8L3erxfV392KuoIOF">AI 只调用预先定义好的工具接口，不生成任意点击脚本；每一步执行后核对真实结果，而不是凭空声称成功。</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= Who ================= -->
+<section class="section section--white" data-page-node-id="E9zKoaFgdz5vkLuKq2iUNq">
+  <div class="section-head reveal" style="margin-bottom:56px;" data-page-node-id="fDLVAXZBHEscjjg3qyBWgb">
+    <p class="kicker" data-page-node-id="cruzAdEaqSrMaewUccHJSF">适合谁用</p>
+    <h2 class="headline" data-page-node-id="Kg9FWKJHnP3CPNCXoTucHQ">父母用得顺手，子女才觉得值得</h2>
+  </div>
+
+  <div class="cards cards--3" data-page-node-id="quEKKy9RDxLaHk8pmeZ7lC">
+    <article class="who-card reveal" data-page-node-id="FSmUDy9tMPjQ1v6gvhEQWR">
+      <span class="who-tag who-tag--pink" data-page-node-id="UBx17msVebrPnNmQpkxbiR">使用者</span>
+      <h3 class="who-title" data-page-node-id="g0SdnzwymFcsKyG5mSnEcn">中老年父母</h3>
+      <p class="who-desc" data-page-node-id="fbC6FFY7cUlFm8lJZrS5xk">能用智能手机基本功能，但在部分高频操作上需要帮助——他们需要的不是更聪明的 AI，而是一个看得见、摸得着的入口。</p>
+    </article>
+    <article class="who-card reveal" data-page-node-id="FiR1thMWEJs3FAvFCM55jv">
+      <span class="who-tag who-tag--blue" data-page-node-id="ZigvhYiEslxrFPjRTHDEHy">购买者</span>
+      <h3 class="who-title" data-page-node-id="ULi64pHRlqtX8muzs8uVyb">成年子女与照护者</h3>
+      <p class="who-desc" data-page-node-id="cmEHK3mG7sZ5HftB8WtN88">希望父母更轻松地使用手机，也少一些反复远程教操作的负担。「子女购买、父母使用」是最常见的家庭组合。</p>
+    </article>
+    <article class="who-card reveal" data-page-node-id="goi7cB4cWJlEhe3AQFJQxq">
+      <span class="who-tag who-tag--yellow" data-page-node-id="o2BAhwPeOjEei8biez2na3">合作者</span>
+      <h3 class="who-title" data-page-node-id="QN1VRQfGAQH7Jmz0ZjqYN5">社区与养老机构</h3>
+      <p class="who-desc" data-page-node-id="u5rLvZECHOtbTA25adCwLC">可将其作为数字技能培训的辅助设备，配合设备配置、使用培训与后续支持，开展小规模试点合作。</p>
+    </article>
+  </div>
+</section>
+
+<!-- ================= Tech band ================= -->
+<section class="tech" data-page-node-id="AiCqrmdDbWyl2Pn6X6gpTD">
+  <div class="tech-band reveal" data-page-node-id="0MURJUTIhfx0Ejq4q9Boby">
+    <img src="assets/icons/tech.svg" alt="" data-page-node-id="tfNBoBBE0aDu7pctbtpyP3">
+    <p data-page-node-id="rtdj95NLXEeoTxt2JP4fHC">ESP32-S3-EYE 硬件&nbsp;&nbsp;·&nbsp;&nbsp;BLE 直连&nbsp;&nbsp;·&nbsp;&nbsp;离线固定命令兜底——AI 模块不可用时，固定命令依然可用</p>
+  </div>
+</section>
+
+<!-- ================= Lab ================= -->
+<section class="lab" data-page-node-id="7aE79vRHcHisUhMZlw6G4x">
+  <div class="lab-card reveal" data-page-node-id="eBnWItShfTk4k2nEXaAMNZ">
+    <div class="lab-head" data-page-node-id="8kOx0jUWBiL7icbWKzrh5R">
+      <div class="lab-head-copy" data-page-node-id="cpu5TZ2KAy6LpYFzmi9n2Z">
+        <p class="lab-kicker" data-page-node-id="lK9X9dfdDtlCBIbPELxSeX">面向开发者与早期用户</p>
+        <h2 class="lab-title" data-page-node-id="DYax1oO6DhQGxHxTNwENK2">PocketPilot Lab · 开发与演示共用的监测平台</h2>
+      </div>
+      <a class="lab-entry" href="#pilot" data-page-node-id="9LYBi5XgDaQOz2X5lQitsr">开发者入口</a>
+    </div>
+    <div class="lab-grid" data-page-node-id="rt7nvE8EU7oPRifSFC2Eg2">
+      <article class="lab-item" data-page-node-id="fn19DfDINId2Q2G9Xr4ckA">
+        <h3 data-page-node-id="CNWEQ3IzSgQ7rQ4G8ECU42">实时运行监测</h3>
+        <p data-page-node-id="nIvBguLTWUpRxa5Rt6Kosv">查看当前命令处于哪个阶段，执行成功还是失败。</p>
+      </article>
+      <article class="lab-item" data-page-node-id="GiGscIgGcwoPwvyQEpQCPL">
+        <h3 data-page-node-id="xBPHxho4JGabdJef3WN6lR">性能分析</h3>
+        <p data-page-node-id="Ox8HHIkQAppsvVMnciKh17">成功率、平均耗时与 P95 耗时，识别错误和失败原因。</p>
+      </article>
+      <article class="lab-item" data-page-node-id="Xuqmi4si8er95pshbxec1x">
+        <h3 data-page-node-id="DdSh5JU1EGKOmiyF7j5Mgp">任务执行记录</h3>
+        <p data-page-node-id="IKBlLteAlYKBclEeZ24Sj8">每次测试的意图、工具调用顺序与错误日志。</p>
+      </article>
+      <article class="lab-item" data-page-node-id="wWizYC5tGiwr7yCzOAUfxS">
+        <h3 data-page-node-id="rvBDIiznmmDrhPdXmBH4zF">测试与配置</h3>
+        <p data-page-node-id="Wjtrdk8oczkOyqQ6t65zuS">切换 Mock 模式与模拟器，设置测试命令和模型配置。</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ================= Buy ================= -->
+<section class="section section--white" id="buy" data-page-node-id="kCtHojOYNkshEnXZ28qdpC">
+  <div class="section-head reveal" style="margin-bottom:56px;" data-page-node-id="T5cpM7DbqsgyHuVo4qJtfb">
+    <p class="kicker" data-page-node-id="smBE4om8l8sSe8UPkJ3cm6">购买与合作</p>
+    <h2 class="headline" data-page-node-id="Tdy1zt18UHnWXHnLtwsmEz">先试点验证，再把话说清楚</h2>
+  </div>
+
+  <div class="cards cards--2" data-page-node-id="c1N403vnv0r2SEFD7nZCgR">
+    <article class="buy-card buy-card--featured reveal" data-page-node-id="rm5qmx36Um6Hf8seFbFG3D">
+      <span class="buy-tag buy-tag--solid" data-page-node-id="9agqGIzgcEgWwhot7B1AQz">主推路径</span>
+      <h3 class="buy-title" data-page-node-id="aJehEumTYVPTgLYuUypnZR">家庭购买</h3>
+      <p class="buy-desc" data-page-node-id="gHG2IvSlpQqot5VbpmAKz0">为父母配置个性化的快捷任务，是最适合先验证的购买路径。</p>
+      <ul class="buy-list" data-page-node-id="RWUg2NxYoEBHSEYhaAyd94">
+        <li data-page-node-id="RjTUC1urEQxPue8wEuhaaE"><img src="assets/icons/check.svg" alt="" data-page-node-id="sojrZKuv2PCBDJVgOt6XTW">硬件一次性销售，没有隐藏订阅</li>
+        <li data-page-node-id="ucwYNEJtZNVlo3Z5wQjoHC"><img src="assets/icons/check.svg" alt="" data-page-node-id="6uDlf3t0PT6tCGQryAGEF0">含初次上门 / 远程配置服务</li>
+        <li data-page-node-id="72anfH5RtLsn8kIOkMq1LS"><img src="assets/icons/check.svg" alt="" data-page-node-id="5NCEgZnDOracrCA1yreQKu">可选的软件增值服务，按需开通</li>
+      </ul>
+    </article>
+    <article class="buy-card reveal" data-page-node-id="EqTCYFunFC6ADFcR40yCYW">
+      <span class="buy-tag buy-tag--soft" data-page-node-id="2djGKxYPl8GfHDM1at25cH">试点合作</span>
+      <h3 class="buy-title" data-page-node-id="naQjkxoFCk90ybGZCDmEQz">机构采购</h3>
+      <p class="buy-desc" data-page-node-id="NpPgK6dzLey9faQ1w3Q893">面向社区中心与养老服务机构，作为数字技能培训的辅助设备开展小规模试点。</p>
+      <ul class="buy-list" data-page-node-id="Hn7FDuzCKy1YLPk8yCw3zl">
+        <li data-page-node-id="00U9QhiyEdfZ5Hc1BUrj1u"><img src="assets/icons/check.svg" alt="" data-page-node-id="H82slQsxTBTvADBRQTbybA">硬件套装 + 培训 + 维护服务</li>
+        <li data-page-node-id="41oI0qg4IByg0EEDbgLawm"><img src="assets/icons/check.svg" alt="" data-page-node-id="9GKWCuDwmYQJQIfCACNxGB">提供设备配置、使用培训与后续支持</li>
+      </ul>
+    </article>
+  </div>
+</section>
+
+<!-- ================= Vision CTA ================= -->
+<section class="cta" id="pilot" data-page-node-id="skFcvDltmZHFsAXIrXTbcG">
+  <div class="cta-card reveal" data-page-node-id="d7A56gHnJ2szrt55i9Rpb2">
+    <div class="cta-copy" data-page-node-id="WhoDQD8MQmXPA9N5hoysrv">
+      <p class="cta-kicker" data-page-node-id="vEFmif30RpMJtW09z2JwpL">POCKETPILOT · 产品愿景</p>
+      <h2 class="cta-title" data-page-node-id="9B2WuH4c1dqg1KLFcPxzkY">离得再远，<br data-page-node-id="DbEH9BaIU9Uf6MWcYQgblC">牵挂也能一键抵达</h2>
+      <p class="cta-desc" data-page-node-id="TZzvXtBzJEGJbUjubpXykE">它不追求替人做所有决定，只把繁琐的操作变成一个按键、一句话——父母多一点自主，你少一点牵挂。</p>
+      <div class="cta-actions" data-page-node-id="Iw0KRb2als07eIomZxINIp">
+        <a class="btn btn--yellow" href="mailto:hello@pocketpilot.io?subject=%E9%A2%84%E7%BA%A6%E5%AE%B6%E5%BA%AD%E8%AF%95%E7%82%B9" data-page-node-id="WnkyB2rkvWJ1EEfrDGmTSz">预约家庭试点</a>
+        <span class="cta-note" data-page-node-id="tiFANx7MZIEE9XpMd9JBg5">产品尚未正式交付，先从真实的试点开始</span>
+      </div>
+    </div>
+    <div class="cta-visual" data-page-node-id="4qPBBGpCwqbCC3zdJtSyPw">
+      <img src="assets/images/product-closeup.jpg" alt="PocketPilot 控制器吸附在手机背面，绿色按键朝外" data-page-node-id="C4G05sAA1s0ZT0GMD0oMA8">
+    </div>
+  </div>
+</section>
+
+<!-- ================= FAQ ================= -->
+<section class="faq" id="faq" data-page-node-id="cU087AusHZbH32gNXRVCGH">
+  <h2 class="faq-title reveal" data-page-node-id="D1STymNgSWPBI6QELpudqc">常见问题</h2>
+  <div class="faq-list" data-page-node-id="CxrQ06rztl9VO7XurAM4W0">
+    <div class="faq-item" data-page-node-id="ykTmhGEK3ALdQOm2wc3DKu">
+      <button class="faq-q" type="button" aria-expanded="false" data-page-node-id="SSSjbX6VCwUVGXGF2SCZ3J">
+        <span data-page-node-id="WDy49dmYz0vYSzx12k6fgU">PocketPilot 会替父母自动转账或发消息吗？</span>
+        <img class="faq-plus" src="assets/icons/plus.svg" alt="" data-page-node-id="n52NEUjwJEEfKxA1ILjaGa">
+      </button>
+      <div class="faq-a" data-page-node-id="VSSGIT4Ys8uNpAK5KWDGXM">
+        <p data-page-node-id="aUz8F04rNmjYqh97sLo2DA">不会。涉及发送消息、支付、转账这类敏感操作时，PocketPilot 只会把界面准备好并提示用户手动确认，不会代替用户按下最后一步。</p>
+      </div>
+    </div>
+    <div class="faq-item" data-page-node-id="41801rqNWHJUowpuAuPaNa">
+      <button class="faq-q" type="button" aria-expanded="false" data-page-node-id="34znfcGqgqbzyO78Gyf40b">
+        <span data-page-node-id="YGMyNiCvTXZTEtUH6BcCow">父母说话不清楚或带口音，能识别吗？</span>
+        <img class="faq-plus" src="assets/icons/plus.svg" alt="" data-page-node-id="YPxmSFCOwDYqEiKVBUhtwq">
+      </button>
+      <div class="faq-a" data-page-node-id="iUShoiEo9tfTyWcw6IAa0f">
+        <p data-page-node-id="6kWI9sxTU18S2dJgXzEgOX">首版以中文普通话为主。识别结果不确定时，设备会复述一遍请用户确认，而不是直接执行。方言与口音的适配会随试点逐步补充。</p>
+      </div>
+    </div>
+    <div class="faq-item" data-page-node-id="dMirQ7NtCHhF1e8XRgMIN6">
+      <button class="faq-q" type="button" aria-expanded="false" data-page-node-id="GdPXq7LV0bpzJNjBhPbCnR">
+        <span data-page-node-id="A4p4oKNKklHQqObwb1pgzf">给父母做初始设置麻烦吗？需要子女在场吗？</span>
+        <img class="faq-plus" src="assets/icons/plus.svg" alt="" data-page-node-id="LNwfUtgDGXL5AagDapPphI">
+      </button>
+      <div class="faq-a" data-page-node-id="RLgtGIUxTTmOMB3JKyNbM5">
+        <p data-page-node-id="yr6lo5QjjnUvmsZZWy4kiP">初始设置由子女协助完成：配对设备、把常用联系人和路线预设好，之后父母按一下就能用。设置一次，日常不需要再维护。</p>
+      </div>
+    </div>
+    <div class="faq-item" data-page-node-id="8jEmGjjo8lCXpk5IcdhdOh">
+      <button class="faq-q" type="button" aria-expanded="false" data-page-node-id="A6tX9iQJ4EjvkBe4uaC2n5">
+        <span data-page-node-id="CJ5skqqQTWQBn9oW5phsvB">支持哪些手机和应用？以后要付订阅费吗？</span>
+        <img class="faq-plus" src="assets/icons/plus.svg" alt="" data-page-node-id="uStkiorQYXN0FvprtgFvhH">
+      </button>
+      <div class="faq-a" data-page-node-id="Iqx9ocpUuEgMd3kdo2pyGW">
+        <p data-page-node-id="aMtFgrbo0AWERXGnEwzEyt">首版通过 BLE 与安卓手机连接，聚焦电话、导航、视频通话等少数高频应用。硬件一次性购买，基础功能不收取订阅费，增值服务按需开通。</p>
+      </div>
+    </div>
+  </div>
+  <p class="faq-note reveal" data-page-node-id="ZLqxVGDlHROMvIHJedawK6">还有其他问题？欢迎通过试点预约与我们沟通，我们会基于真实使用场景逐一回答。</p>
+</section>
+
+</main>
+
+<!-- ================= Footer ================= -->
+<footer class="footer" data-page-node-id="petQGxFqAHAgnryihpB4oA">
+  <div class="footer-top" data-page-node-id="C3qv1nAZ2Ga1ONewzTY4IG">
+    <div class="footer-brand" data-page-node-id="64cwOSwtOIYKZqsOE9FZr6">
+      <div class="footer-brand-row" data-page-node-id="HP5CfiFWsZoiTPDxAB3zAw">
+        <img src="assets/icons/footer-logo.svg" alt="" data-page-node-id="56bXa7bjotrmxprvveHjdg">
+        <span data-page-node-id="RcCdDXBSVVxNlqllbgBRps">PocketPilot</span>
+      </div>
+      <p class="footer-tagline" data-page-node-id="e07JxYGJ5VQDz4KF1jRDDR">一款面向手机操作不便或不熟悉复杂操作人群的实体 AI 语音助手：一个按键和一句话，更轻松地完成日常手机任务。</p>
+    </div>
+
+    <div class="footer-col" data-page-node-id="6se6DXfVYNPjMhjtjVIujT">
+      <h4 data-page-node-id="n0GEFMNz5Fxvvk49BQ4W4S">产品</h4>
+      <a href="#how" data-page-node-id="MjM3Q0FQjtvk46NYdqArjN">产品介绍</a>
+      <a href="#scenes" data-page-node-id="uPwVbMkXMIoxyjM5CAffmB">核心场景</a>
+      <a href="#trust" data-page-node-id="OoFW2CrEpX8iL8qumElOCv">安心保障</a>
+    </div>
+    <div class="footer-col" data-page-node-id="tTqarAGy8HMg2xGZCukRNy">
+      <h4 data-page-node-id="u45i8N3VPIgNn2dYmc5uGe">合作</h4>
+      <a href="#buy" data-page-node-id="ZyzAg6tpqlfQddCqG3zhcD">家庭购买</a>
+      <a href="#buy" data-page-node-id="rRhw9qHLDTJ03IzANHvf4t">机构合作</a>
+      <a href="#pilot" data-page-node-id="4PDzvCFWrtYZYx7sei733R">试点预约</a>
+    </div>
+    <div class="footer-col" data-page-node-id="nnSpVOpayk4fyYkaxk0bku">
+      <h4 data-page-node-id="snZPHiqwXGPP4yTbXQV25Q">支持</h4>
+      <a href="#faq" data-page-node-id="eVLPkEVYYhwZTJe0F8P0nD">常见问题</a>
+      <a href="#pilot" data-page-node-id="rT4QRhDrYPOsZYdQ5iR5e1">开发者入口</a>
+      <a href="mailto:hello@pocketpilot.io" data-page-node-id="raQ03MadfAhtRjVCXQUgEp">联系我们</a>
+    </div>
+  </div>
+
+  <div class="footer-divider" data-page-node-id="cExSEwOAnCfrP3z8q9WZxE"></div>
+
+  <div class="footer-bottom" data-page-node-id="DyRbeSk061TzrAs0yLTOj2">
+    <span data-page-node-id="tHlzVEvLBoYWeprgD7EOSj">© 2026 PocketPilot · 离得再远，牵挂也能一键抵达</span>
+    <span data-page-node-id="9wNU7bkfbG29jIRYyLAi1R">ICP 备案号占位</span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  'use strict';
+
+  /* 1. 滚动时给头部加投影 */
+  var header = document.querySelector('.site-header');
+  var onScroll = function () {
+    header.classList.toggle('is-scrolled', window.scrollY > 8);
+  };
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  /* 2. 移动端菜单 */
+  var toggle = document.querySelector('.nav-toggle');
+  var mobileNav = document.getElementById('mobileNav');
+  if (toggle && mobileNav) {
+    toggle.addEventListener('click', function () {
+      var open = mobileNav.classList.toggle('is-open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? '关闭菜单' : '打开菜单');
+    });
+    mobileNav.addEventListener('click', function (e) {
+      if (e.target.tagName === 'A') {
+        mobileNav.classList.remove('is-open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  /* 3. FAQ 手风琴 */
+  var items = document.querySelectorAll('.faq-item');
+  items.forEach(function (item) {
+    var q = item.querySelector('.faq-q');
+    var a = item.querySelector('.faq-a');
+    q.addEventListener('click', function () {
+      var isOpen = item.classList.contains('is-open');
+      items.forEach(function (other) {
+        other.classList.remove('is-open');
+        other.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+        other.querySelector('.faq-a').style.maxHeight = '0px';
+      });
+      if (!isOpen) {
+        item.classList.add('is-open');
+        q.setAttribute('aria-expanded', 'true');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+  window.addEventListener('resize', function () {
+    document.querySelectorAll('.faq-item.is-open .faq-a').forEach(function (a) {
+      a.style.maxHeight = a.scrollHeight + 'px';
+    });
+  });
+
+  /* 4. 进入视口渐显 */
+  var reveals = document.querySelectorAll('.reveal');
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) {
+    reveals.forEach(function (el) { el.classList.add('is-visible'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { rootMargin: '0px 0px -8% 0px', threshold: 0.08 });
+    reveals.forEach(function (el) { io.observe(el); });
+    // 首屏元素立即显示
+    document.querySelectorAll('.hero .reveal').forEach(function (el) {
+      el.classList.add('is-visible');
+    });
+  }
+
+  /* 5. 锚点平滑滚动（补偿 sticky header） */
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var id = link.getAttribute('href');
+      if (id.length < 2) return;
+      var target = document.querySelector(id);
+      if (!target) return;
+      e.preventDefault();
+      var top = target.getBoundingClientRect().top + window.scrollY - 72;
+      window.scrollTo({ top: top, behavior: reduce ? 'auto' : 'smooth' });
+      history.replaceState(null, '', id);
+    });
+  });
+})();
+</script>
+
+
+</body></html>
