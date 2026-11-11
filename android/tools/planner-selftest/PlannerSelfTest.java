@@ -7,6 +7,7 @@ import com.pocketpilot.app.core.PocketCommand;
 import com.pocketpilot.app.plan.ActionPolicy;
 import com.pocketpilot.app.plan.CloudPlannerStub;
 import com.pocketpilot.app.plan.ContextFacts;
+import com.pocketpilot.app.plan.FinancialGuard;
 import com.pocketpilot.app.plan.PlanOutcome;
 import com.pocketpilot.app.plan.PlanResult;
 import com.pocketpilot.app.plan.PlanValidator;
@@ -41,6 +42,7 @@ public final class PlannerSelfTest {
         rulePlannerTests();
         cloudStubTests();
         planValidatorTests();
+        financialGuardTests();
         taskRunnerTests();
         jsonTests();
 
@@ -450,6 +452,79 @@ public final class PlannerSelfTest {
 
     private static TaskPlan planOf(TaskStep... steps) {
         return new TaskPlan("TEST_STUB", "selftest", Arrays.asList(steps));
+    }
+
+    // ------------------------------------------------------- financial guard
+    // 财产安全硬防守回归（2026-11-11 决议）：任何财产类语义必须被文本层拦截，
+    // 无论它来自话语、规划器输出还是步骤参数。
+
+    private static void financialGuardTests() {
+        ContextFacts facts = new ContextFacts(TEST_ADDRESS, ContextFacts.SOURCE_REAL_NOTIFICATION, true);
+
+        // --- 守卫单元测试：直接打 FinancialGuard.check ---
+        String[] denyTexts = {
+                "帮我转账给女儿500元",       // 转账
+                "打开支付宝付款",             // 付款
+                "给老伴发个红包",             // 红包
+                "转 账 给 张 三",             // 空格绕过
+                "转，账。给，他",             // 标点绕过
+                "帮我ｐａｙ一下",             // 全角英文
+                "Pay the bill",               // 大小写英文
+                "这个月的花呗怎么还",         // 花呗
+                "验证码是多少",               // 验证码（诈骗话术）
+                "把银行卡号报给客服",         // 银行卡号（诈骗话术）
+                "给我充2万元话费",            // 充值 + 金额
+                "汇500块给他",                // 金额模式（数字+块）
+                "买3千元的东西",              // 金额模式（数字+元）
+        };
+        for (String text : denyTexts) {
+            FinancialGuard.Decision d = FinancialGuard.check(text);
+            expect(d.denied && FinancialGuard.REASON_CODE.equals(d.reasonCode),
+                    "financial deny: [" + text + "]");
+        }
+
+        String[] allowTexts = {
+                "导航去医院", "打开微信", "打开地图", "去火车站怎么走",
+                "返回上一页", "去北京市海淀区中关村大街1号",
+        };
+        for (String text : allowTexts) {
+            FinancialGuard.Decision d = FinancialGuard.check(text);
+            expect(!d.denied, "financial allow: [" + text + "]");
+        }
+
+        // null / 空串放行
+        expect(!FinancialGuard.check(null).denied && !FinancialGuard.check("").denied,
+                "financial guard allows null/empty");
+
+        // --- 校验层集成测试：带财产话语的计划整体被拒 ---
+        TaskPlan payPlan = new TaskPlan("TEST_STUB", "帮我转账给女儿500元",
+                Arrays.asList(TaskStep.of(CommandType.OPEN_WECHAT, "", "test")));
+        PlanValidator.Decision payDecision = PlanValidator.validate(payPlan, facts, false);
+        expect(!payDecision.accepted && payDecision.outcome == PlanOutcome.REJECTED
+                        && "FINANCIAL_CONTENT_DENY".equals(payDecision.reasonCode),
+                "plan with financial utterance -> REJECTED(FINANCIAL_CONTENT_DENY)");
+
+        // 话语正常但步骤参数含财产语义 -> 步骤层拦截
+        TaskPlan argPlan = new TaskPlan("TEST_STUB", "导航过去",
+                Arrays.asList(TaskStep.of(CommandType.OPEN_MAP, "某某银行营业厅", "test")));
+        PlanValidator.Decision argDecision = PlanValidator.validate(argPlan, facts, false);
+        expect(!argDecision.accepted && "FINANCIAL_CONTENT_DENY".equals(argDecision.reasonCode),
+                "plan step with financial argument -> REJECTED(FINANCIAL_CONTENT_DENY)");
+
+        // 正常计划不受影响（守卫不挡常规任务）
+        TaskPlan normalPlan = new TaskPlan("TEST_STUB", "导航去医院",
+                Arrays.asList(TaskStep.of(CommandType.OPEN_MAP, TEST_ADDRESS, "test")));
+        PlanValidator.Decision normalDecision = PlanValidator.validate(normalPlan, facts, false);
+        expect(normalDecision.accepted && normalDecision.outcome == PlanOutcome.READY,
+                "normal plan still accepted (guard does not over-block)");
+
+        // 财产拦截优先于敏感确认：即使给了确认也拒绝
+        TaskPlan sensitivePay = new TaskPlan("TEST_STUB", "付款给商家",
+                Arrays.asList(TaskStep.sensitive(CommandType.OPEN_MAP, "商家", "test")));
+        PlanValidator.Decision sensitivePayDecision =
+                PlanValidator.validate(sensitivePay, facts, true);
+        expect(!sensitivePayDecision.accepted && "FINANCIAL_CONTENT_DENY".equals(sensitivePayDecision.reasonCode),
+                "financial deny wins even with confirmation given");
     }
 
     /** 返回固定状态的执行器，同时记录被调用次数，用于证明 fail-fast 真的生效。 */

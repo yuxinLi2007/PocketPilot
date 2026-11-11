@@ -49,9 +49,23 @@ public final class PlanValidator {
                     "计划步数 " + plan.stepCount() + " 超过上限 " + MAX_STEPS);
         }
 
+        // 财产安全硬防守：先查原始话语，再查每一步的参数。
+        // 这道闸对所有规划器生效（规则 / 云端 / 未来的任何实现），不可跳过。
+        FinancialGuard.Decision utteranceGuard = FinancialGuard.check(plan.utterance());
+        if (utteranceGuard.denied) {
+            return Decision.reject(FinancialGuard.REASON_CODE,
+                    "话语层拦截：" + utteranceGuard.detail);
+        }
+
         for (int i = 0; i < plan.stepCount(); i++) {
             TaskStep step = plan.steps().get(i);
             String where = "第 " + (i + 1) + " 步";
+
+            FinancialGuard.Decision stepGuard = FinancialGuard.check(step.describe());
+            if (stepGuard.denied) {
+                return Decision.reject(FinancialGuard.REASON_CODE,
+                        where + " 拦截：" + stepGuard.detail);
+            }
 
             if (step.type() == null) {
                 return Decision.reject("UNKNOWN_ACTION", where + " 动作类型为空");
