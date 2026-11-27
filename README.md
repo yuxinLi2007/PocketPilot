@@ -55,7 +55,7 @@ PocketPilot 将三个部分组合成一个交互闭环：
 
 > 注：此为商业化形态的设计概念渲染。当前原型使用 ESP32-S3-EYE 开发板验证交互链路，概念图不代表实物已完成。
 
-> 🌐 **产品官网（在线浏览）**：https://yuxinli2007.github.io/pocketpilot-site/ —— 源码位于独立仓库 [pocketpilot-site](https://github.com/yuxinLi2007/pocketpilot-site)，推送即自动发布。
+> 🌐 **产品官网（在线浏览）**：https://yuxinli2007.github.io/PocketPilot/ —— 源码位于本仓库 [site/](site/) 目录，推送即自动发布。
 
 ## The First Milestone｜第一个可验证的结果
 
